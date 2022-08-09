@@ -1,0 +1,28 @@
+{
+  "name": "m42",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite --host",
+    "build": "vite build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jw-12138/m42.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jw-12138/m42/issues"
+  },
+  "homepage": "https://github.com/jw-12138/m42#readme",
+  "dependencies": {
+    "@vitejs/plugin-vue": "^3.0.1",
+    "express": "^4.18.1",
+    "sass": "^1.54.4",
+    "vite": "^3.0.5",
+    "vue": "^3.2.37",
+    "ws": "^8.8.1"
+  }
+}
