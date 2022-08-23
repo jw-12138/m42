@@ -29,9 +29,6 @@ export default {
         console.log(err)
       })
       
-    },
-    enterRoom() {
-      this.$emit('enterRoom', true)
     }
   }
 }

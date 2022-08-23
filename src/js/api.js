@@ -1,7 +1,9 @@
-let basePath = 'http://localhost:4010'
+let basePath = ""
 
 export default {
   createRoom: basePath + '/createRoom',
   enterRoom: basePath + '/enterRoom',
-  sendMessage: basePath + '/sendMessage'
+  checkRoom: basePath + '/checkRoom',
+  sendMessage: basePath + '/sendMessage',
+  updateRoom: basePath + '/updateRoom'
 }

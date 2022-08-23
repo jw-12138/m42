@@ -2,7 +2,7 @@
   <div class="app-wrap">
     <h1>M42</h1><br>
     <p>
-      <code>https://m24.jw1.dev/#/{{ token }}</code>
+      <code>{{href}}/#/{{ token }}</code>
     </p><br>
     <p>
       Copy the link above to your friend. </p><br>
@@ -17,9 +17,15 @@
 <script>
 export default {
   name: 'createRoom',
+  computed: {
+    href: function () {
+      return location.origin
+    }
+  },
   methods: {
     enterRoom() {
       location.href = this.url
+      this.$emit('enterRoom')
     }
   },
   props: {

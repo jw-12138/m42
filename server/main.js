@@ -1,37 +1,58 @@
+require('dotenv').config()
+
 const express = require('express')
 const app = express()
-const cors = require('cors')
+// const cors = require('cors')
 const {WebSocketServer} = require('ws')
+const bodyParser = require('body-parser')
+const {getThatClient} = require('./utils.js')
 
-app.use(cors())
+// app.use(cors())
+app.use(express.static('dist'))
+app.use(bodyParser.json())
 
 const authenticate = function (req, next) {
   next(null, req.headers['sec-websocket-key'])
 }
 
-const createRoom = require('./createRoom.js')
-const port = 4010
+const port = process.env.PORT
+const host = process.env.HOST
 
 // APIs
-app.use('/createRoom', createRoom)
+
+app.use('/createRoom', require('./createRoom.js'))
+app.use('/checkRoom', require('./checkRoom.js'))
+app.use('/updateRoom', require('./updateRoom.js'))
 
 // ws
 const wss = new WebSocketServer({
   noServer: true
 })
 
+let lookup = {}
+
 wss.on('connection', function connection(ws, req, client) {
-  ws.on('message', (data) => {
-    console.log(JSON.parse(data.toString()), client)
+  lookup[client] = ws
+  
+  lookup[client].send(JSON.stringify({
+    clientID: client
+  }))
+  
+  lookup[client].on('message', (data) => {
+    let cThat = getThatClient(client)
+    if(cThat && lookup[cThat]){
+      lookup[cThat].send(data.toString())
+    }
   })
   
-  ws.on('close', function (code, reason) {
+  lookup[client].on('close', function (code, reason) {
+    delete lookup[client]
     console.log(code, reason.toString())
   })
 })
 
-const server = app.listen(port, () => {
-  console.log(`app is on, http://localhost:${port}`)
+const server = app.listen(port, host, () => {
+  console.log(`app is on, http://${host}:${port}`)
 })
 
 server.on('upgrade', function upgrade(request, socket, head) {

@@ -1,5 +1,6 @@
 <template>
-  <div class="app-wrap hasTextField">
+  <div style="position: fixed; left: 0; top: 0; color: red; z-index: 20000; font-size: 24px">{{vHeight}}</div>
+  <div class="app-wrap hasTextField" ref="app_wrap" :style="{height: vHeight + 'px'}">
     <div class="chat-field">
       <div v-for="(item, i) in messageList" class="message-item"
            :class="{in: item.type === 'in', out: item.type === 'out'}">
@@ -19,22 +20,50 @@
 
 <script>
 import {v4 as uuidv4} from 'uuid'
+import {getHash, updateRoom} from '../js/utils.js'
 
 export default {
   name: 'chatPage',
+  computed: {
+    vHeight: function () {
+      const viewport = window.visualViewport
+      return viewport ? viewport.height : 0
+    }
+  },
   mounted() {
     this.initWS()
+    this.scrollFunc()
+    let _ = this
+    window.visualViewport.addEventListener('resize', function () {
+      let viewport = window.visualViewport
+      _.vHeight = viewport ? viewport.height - viewport.offsetTop : 0
+    })
+    setInterval(function () {
+      _.vHeight = VisualViewport ? VisualViewport.height : 0
+    }, 20)
   },
   methods: {
+    getHash,
+    scrollFunc: function () {
+      let element = this.$refs.app_wrap
+      setTimeout(function () {
+        element.scrollTop = element.scrollHeight
+      }, 0)
+    },
     sendMessage: function (data) {
       let _ = this
-      _.ws.send(JSON.stringify(data))
+      if(_.ws.readyState === 1){
+        _.ws.send(JSON.stringify(data))
+      }
     },
     initWS() {
       let ws = null
       let _ = this
       try {
-        ws = new WebSocket('ws://localhost:4010')
+        let host = location.host
+        let protocol = location.protocol
+        let url = (protocol === 'http:' ? 'ws://': 'wss://') + host
+        ws = new WebSocket(url)
       } catch (err) {
         console.log('Your browser does not support websocket, remotely controlled page refresh will not be executed!');
       }
@@ -49,11 +78,22 @@ export default {
         })
       
         ws.addEventListener('close', function () {
-        
+          console.log('Websocket closed!')
         })
       
         ws.addEventListener('message', function (e) {
-          console.log(JSON.parse(e.data))
+          let data = JSON.parse(e.data)
+          if(data.clientID){
+            updateRoom(_.getHash(), {
+              clientID: data.clientID
+            })
+          }
+          
+          if(data.type === 'out'){
+            data.type = 'in'
+            _.messageList.push(data)
+            _.scrollFunc()
+          }
         })
       }
     },
@@ -74,6 +114,7 @@ export default {
         _.messageList.push(m)
         _.sendMessage(m)
         _.userMessage = ''
+        _.scrollFunc()
       }
     }
   },
