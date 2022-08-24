@@ -16,7 +16,14 @@ function updateData(id, newData) {
       } else {
         user = 'b'
       }
-      break
+    }
+    if (el.clientID_a === id || el.clientID_b === id) {
+      roomID = keys[i]
+      if (el.clientID_a === id) {
+        user = 'a'
+      } else {
+        user = 'b'
+      }
     }
   }
   
@@ -36,7 +43,6 @@ function updateData(id, newData) {
 
 function sendJSON(res, data) {
   res.setHeader('Content-Type', 'application/json')
-  console.log(data || {})
   res.end(JSON.stringify(data || {}))
 }
 
@@ -54,10 +60,57 @@ function getThatClient(cThis) {
       return el.clientID_a
     }
   }
+  return null
+}
+
+function isRoomExist(id) {
+  let path = __dirname + '/r/room.json'
+  let config = JSON.parse(fs.readFileSync(path))
+  let keys = Object.keys(config)
+  
+  for (let i = 0; i < keys.length; i++) {
+    let el = config[keys[i]]
+  
+    return el.clientID_a === id || el.clientID_b === id;
+  }
+}
+
+function checkRoomActivity() {
+  let path = __dirname + '/r/room.json'
+  if(!fs.existsSync(path)){
+    return
+  }
+  let config = JSON.parse(fs.readFileSync(path))
+  let keys = Object.keys(config)
+  let now = Date.now()
+  let offset = 1000 * 60 * 15 // 15 min
+  
+  let idForDelete = []
+  
+  for (let i = 0; i < keys.length; i++) {
+    let el = config[keys[i]]
+    if(now - el.lastActivity > offset ){
+      idForDelete.push(el.id)
+    }
+  }
+  
+  idForDelete.forEach(el => {
+    let p = __dirname + '/r/' + el
+    fs.rmSync(p, {
+      force: true,
+      recursive: true
+    })
+    
+    delete config[el]
+  })
+  if(idForDelete.length){
+    fs.writeFileSync(path, JSON.stringify(config))
+  }
 }
 
 module.exports = {
   updateData,
   sendJSON,
-  getThatClient
+  getThatClient,
+  checkRoomActivity
 }

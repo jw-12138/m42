@@ -5,7 +5,7 @@ const app = express()
 // const cors = require('cors')
 const {WebSocketServer} = require('ws')
 const bodyParser = require('body-parser')
-const {getThatClient} = require('./utils.js')
+const {getThatClient, checkRoomActivity, updateData} = require('./utils.js')
 
 // app.use(cors())
 app.use(express.static('dist'))
@@ -23,6 +23,10 @@ const host = process.env.HOST
 app.use('/createRoom', require('./createRoom.js'))
 app.use('/checkRoom', require('./checkRoom.js'))
 app.use('/updateRoom', require('./updateRoom.js'))
+
+setInterval(function () {
+  checkRoomActivity()
+}, 5000)
 
 // ws
 const wss = new WebSocketServer({
@@ -42,7 +46,12 @@ wss.on('connection', function connection(ws, req, client) {
     let cThat = getThatClient(client)
     if(cThat && lookup[cThat]){
       lookup[cThat].send(data.toString())
+      console.log('sent', data.toString())
     }
+    
+    updateData(client, {
+      lastActivity: Date.now()
+    })
   })
   
   lookup[client].on('close', function (code, reason) {

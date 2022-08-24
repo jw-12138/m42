@@ -4,6 +4,7 @@ html, body {
   font-family: "JetBrains Mono", monospace;
   background: #121212;
   color: #ffffff;
+  height: 100vh;
 }
 
 .app-wrap {
@@ -11,10 +12,9 @@ html, body {
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
-  overflow-y: auto;
   
   &.hasTextField {
-    height: calc(100vh - 90px);
+    padding-bottom: 110px;
   }
 }
 
@@ -122,7 +122,7 @@ input {
 
 @keyframes newMessage {
   0% {
-    transform: translateY(15px);
+    transform: translateY(5px);
   }
   100% {
     transform: translateY(0);
