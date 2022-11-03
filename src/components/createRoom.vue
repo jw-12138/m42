@@ -2,7 +2,7 @@
   <div class="app-wrap">
     <h1>M42</h1><br>
     <p>
-      <code>{{href}}/#/{{ token }}</code>
+      <code>{{ href }}/#/{{ token }}</code>
     </p><br>
     <p>
       Copy the link above to your friend. </p><br>
@@ -17,6 +17,9 @@
 <script>
 export default {
   name: 'createRoom',
+  mounted() {
+    document.getElementById('app').classList.remove('chat')
+  },
   computed: {
     href: function () {
       return location.origin

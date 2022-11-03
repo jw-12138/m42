@@ -5,6 +5,18 @@ html, body {
   background: #121212;
   color: #ffffff;
   height: 100vh;
+  overflow: hidden;
+}
+
+#app{
+  &.chat{
+    position: fixed;
+    left: 0;
+    bottom: 72px;
+    width: 100%;
+    max-height: calc(100vh - 72px);
+    overflow: auto;
+  }
 }
 
 .app-wrap {
@@ -12,6 +24,10 @@ html, body {
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
+  
+  &.hasTextField{
+    overflow: auto;
+  }
 }
 
 button {
@@ -136,7 +152,7 @@ input {
 
 @keyframes newMessage {
   0% {
-    transform: translateY(5px);
+    transform: translateY(10px);
   }
   100% {
     transform: translateY(0);

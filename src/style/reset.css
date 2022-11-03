@@ -75,7 +75,7 @@ select {
 
 /* width */
 ::-webkit-scrollbar {
-  width: 3px;
+  width: 6px;
 }
 
 /* Track */
@@ -86,6 +86,7 @@ select {
 /* Handle */
 ::-webkit-scrollbar-thumb {
   background: #555;
+  border-radius: 6px;
 }
 
 /* Handle on hover */

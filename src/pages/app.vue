@@ -1,5 +1,5 @@
 <template>
-  <landing-page v-if="showLandingPage" @createRoom="createRoom"></landing-page>
+  <landing-page @createRoom="createRoom" v-show="showLandingPage" style="display: none"></landing-page>
   <create-room v-if="showCreateRoom" :token="token_b" :url="baseUrl + token_a" @enterRoom="enterRoom"></create-room>
   <chat-page v-if="showChat"></chat-page>
 </template>

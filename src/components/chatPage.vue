@@ -1,8 +1,5 @@
 <template>
   <div class="app-wrap hasTextField">
-    <div class="fake-field" :style="{
-      height: fixHeight + 'px'
-    }"></div>
     <div class="chat-field" ref="chat_field">
       <div v-for="(item, i) in messageList" class="message-item"
            :class="{in: item.type === 'in', out: item.type === 'out', system: item.type === 'system'}">
@@ -31,6 +28,7 @@ export default {
   computed: {},
   mounted() {
     let _ = this
+    document.getElementById('app').classList.add('chat')
     _.checkMeOnline(_.getHash(), function (err, res) {
       console.log('me', res.data.online)
       
@@ -59,19 +57,6 @@ export default {
       
       _.initWS()
     })
-    try {
-      setInterval(function () {
-        let wh = window.innerHeight
-        let th = _.$refs.chat_field.clientHeight
-        let fh = wh - th - 140
-        if (fh < 0) {
-          fh = 0
-        }
-        _.fixHeight = fh
-      }, 10)
-    } catch (e) {
-    
-    }
   },
   methods: {
     getHash,
@@ -123,7 +108,7 @@ export default {
     },
     scrollFunc() {
       setTimeout(function () {
-        window.scrollTo(0, document.body.scrollHeight)
+        document.getElementById('app').scrollTo(0, document.getElementById('app').scrollHeight)
       }, 50)
     },
     initWS() {
@@ -193,9 +178,9 @@ export default {
           timestamp: Date.now()
         }
         _.messageList.push(m)
-        _.sendMessage(m)
         _.userMessage = ''
         _.scrollFunc()
+        _.sendMessage(m)
       }
     }
   },
