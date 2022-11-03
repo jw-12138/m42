@@ -13,10 +13,10 @@
 #### first stage
 - [x] UI
 - [x] send text
-- [ ] security
+- [x] security
   - [x] self-destroy when no activity
-  - [ ] 1-end session
-  - [ ] end-to-end encryption
+  - [x] 1-end session
+  - [x] end-to-end encryption
 
 #### second stage
 
