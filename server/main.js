@@ -2,12 +2,12 @@ require('dotenv').config()
 
 const express = require('express')
 const app = express()
-// const cors = require('cors')
+const cors = require('cors')
 const {WebSocketServer} = require('ws')
 const bodyParser = require('body-parser')
-const {getThatClient, checkRoomActivity, updateData} = require('./utils.js')
+const {getThatClient, checkRoomActivity, updateData, getRoom, deleteClientData} = require('./utils.js')
 
-// app.use(cors())
+app.use(cors())
 app.use(express.static('dist'))
 app.use(bodyParser.json())
 
@@ -18,11 +18,18 @@ const authenticate = function (req, next) {
 const port = process.env.PORT
 const host = process.env.HOST
 
+if (!port || !host) {
+  console.error('port or host is not defined')
+  
+  process.exit(1)
+}
+
 // APIs
 
 app.use('/createRoom', require('./createRoom.js'))
 app.use('/checkRoom', require('./checkRoom.js'))
 app.use('/updateRoom', require('./updateRoom.js'))
+app.use('/checkOnline', require('./checkOnline.js'))
 
 setInterval(function () {
   checkRoomActivity()
@@ -44,7 +51,7 @@ wss.on('connection', function connection(ws, req, client) {
   
   lookup[client].on('message', (data) => {
     let cThat = getThatClient(client)
-    if(cThat && lookup[cThat]){
+    if (cThat && lookup[cThat]) {
       lookup[cThat].send(data.toString())
       console.log('sent', data.toString())
     }
@@ -55,6 +62,8 @@ wss.on('connection', function connection(ws, req, client) {
   })
   
   lookup[client].on('close', function (code, reason) {
+    let room = getRoom(client)
+    deleteClientData(room, client)
     delete lookup[client]
     console.log(code, reason.toString())
   })

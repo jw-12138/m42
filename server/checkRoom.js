@@ -1,14 +1,13 @@
 const express = require('express')
 const router = express.Router()
 const fs = require('fs')
-const {sendJSON} = require('./utils.js')
 
 router.get('/', function (req, res) {
   let token = req.query.hash
   let hasToken = false
   
   if(!fs.existsSync(__dirname + '/r/room.json')){
-    sendJSON(res, {
+    res.json({
       hasToken: hasToken
     })
     
@@ -26,7 +25,7 @@ router.get('/', function (req, res) {
     }
   }
   
-  sendJSON(res, {
+  res.json({
     hasToken: hasToken
   })
 })

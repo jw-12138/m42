@@ -19,13 +19,29 @@ export function checkHash(callback) {
   })
 }
 
-export function updateRoom(id, newData) {
+export function updateRoom(id, newData, cb) {
   axios.post(api.updateRoom, {
     id: id,
     newData: newData
   }).then(res => {
-    console.log(res)
+    cb && cb(null, res)
   }).catch(err => {
-    console.log(err)
+    cb && cb(err)
+  })
+}
+
+export function checkOnline(roomID, clientID, cb){
+  axios.get(api.checkOnline + `?hash=${roomID}&clientID=${clientID}`).then(res => {
+    cb && cb(null, res)
+  }).catch(err => {
+    cb && cb(err)
+  })
+}
+
+export function checkMeOnline(hash, cb) {
+  axios.get(api.checkOnline + `?hash=${hash}&type=me`).then(res => {
+    cb && cb(null, res)
+  }).catch(err => {
+    cb && cb(err)
   })
 }
