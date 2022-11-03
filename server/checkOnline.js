@@ -63,18 +63,16 @@ router.get('/', function (req, res) {
   
   let online = false
   if (room['clientID_a'] === clientID) {
-    console.log('b', room['clientID_b'])
     if(room['clientID_b']){
       online = true
     }
-  } else {
-    console.log('a', room['clientID_a'])
+  }
+
+  if (room['clientID_b'] === clientID) {
     if(room['clientID_a']){
       online = true
     }
   }
-  
-  console.log(online)
   
   res.json({
     online: online

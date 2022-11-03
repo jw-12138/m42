@@ -12,10 +12,6 @@ html, body {
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
-  
-  &.hasTextField {
-    padding-bottom: 110px;
-  }
 }
 
 button {
@@ -122,7 +118,6 @@ input {
         width: 100%;
         max-width: 100%;
         padding: 4px 0;
-        font-size: 10px;
         text-align: center;
         color: #fff;
       }
@@ -141,7 +136,7 @@ input {
 
 @keyframes newMessage {
   0% {
-    transform: translateY(0);
+    transform: translateY(5px);
   }
   100% {
     transform: translateY(0);

@@ -130,7 +130,6 @@ export default {
         let host = location.host
         let protocol = location.protocol
         let url = (protocol === 'http:' ? 'ws://' : 'wss://') + host
-        url = 'ws://localhost:5008'
         ws = new WebSocket(url)
       } catch (err) {
         console.log('Your browser does not support websocket, remotely controlled page refresh will not be executed!')

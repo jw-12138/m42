@@ -1,4 +1,4 @@
-let basePath = "http://localhost:5008"
+let basePath = ""
 
 export default {
   createRoom: basePath + '/createRoom',
