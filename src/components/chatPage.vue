@@ -171,7 +171,7 @@ export default {
             data.type = 'in'
             let key = localStorage.getItem('roomID') + data.timestamp
             let ciphertext = CryptoJS.Rabbit.decrypt(data.content, key)
-            data.content = ciphertext.toString(CryptoJS.enc.Latin1)
+            data.content = ciphertext.toString(CryptoJS.enc.Utf8)
             _.messageList.push(data)
             _.scrollFunc()
           }
