@@ -2,10 +2,10 @@ const express = require('express')
 const router = express.Router()
 const fs = require('fs')
 
-router.get('/', function (req, res) {
-  let hash = req.query.hash
-  let type = req.query.type
-  let clientID = req.query.clientID
+router.post('/', function (req, res) {
+  let hash = req.body.hash
+  let type = req.body.type
+  let clientID = req.body.clientID
   
   if (!fs.existsSync(__dirname + '/r/room.json')) {
     res.status(503).json({
@@ -74,8 +74,11 @@ router.get('/', function (req, res) {
     }
   }
   
+  console.log(clientID, online)
+  
   res.json({
-    online: online
+    online: online,
+    clientID: clientID
   })
 })
 

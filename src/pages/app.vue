@@ -38,18 +38,22 @@ export default {
     checkHash,
     checkRoom() {
       let _ = this
-      this.checkHash(function (err, hasToken) {
+      this.checkHash(function (err, res) {
         if (err) {
           console.log(err)
-          return 0
+          return
         }
         
-        if (hasToken) {
+        if (res.data.hasToken) {
           _.showLandingPage = false
           _.showCreateRoom = false
           _.showChat = true
         } else {
           location.href = location.origin
+        }
+        
+        if(res.data.roomID){
+          localStorage.setItem('roomID', res.data.roomID)
         }
       })
     },

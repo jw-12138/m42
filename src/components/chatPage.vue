@@ -23,7 +23,8 @@
 
 <script>
 import {v4 as uuidv4} from 'uuid'
-import {getHash, updateRoom, checkOnline, checkMeOnline} from '../js/utils.js'
+import CryptoJS from 'crypto-js'
+import {checkMeOnline, checkOnline, getHash, updateRoom} from '../js/utils.js'
 
 export default {
   name: 'chatPage',
@@ -78,9 +79,6 @@ export default {
     checkOnline,
     checkFriendOnline() {
       let _ = this
-      if (!_.clientID) {
-        return false
-      }
       
       _.checkOnline(_.getHash(), _.clientID, function (err, res) {
         _.friendOnline = res.data.online ? res.data.online : false
@@ -93,7 +91,12 @@ export default {
     sendMessage: function (data) {
       let _ = this
       if (_.ws.readyState === 1) {
+        let old_message = data.content
+        let key = localStorage.getItem('roomID') + data.timestamp
+        let ciphertext = CryptoJS.Rabbit.encrypt(data.content, key)
+        data.content = ciphertext.toString(CryptoJS.enc.HEX)
         _.ws.send(JSON.stringify(data))
+        data.content = old_message
       }
       _.scrollFunc()
       
@@ -157,16 +160,18 @@ export default {
             }, function (err, res) {
               if (res) {
                 localStorage.setItem('room', _.getHash())
+                _.checkFriendOnline()
               } else {
                 console.log(err, res)
               }
             })
-            
-            _.checkFriendOnline()
           }
           
           if (data.type === 'out') {
             data.type = 'in'
+            let key = localStorage.getItem('roomID') + data.timestamp
+            let ciphertext = CryptoJS.Rabbit.decrypt(data.content, key)
+            data.content = ciphertext.toString(CryptoJS.enc.Latin1)
             _.messageList.push(data)
             _.scrollFunc()
           }

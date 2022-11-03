@@ -5,17 +5,13 @@ export function getHash(){
   return location.hash.replace('#/', '')
 }
 
-export function checkHash(callback) {
+export function checkHash(cb) {
   let hash = getHash()
   axios.get(api.checkRoom + '?hash=' + hash).then(res => {
-    if (res.data.hasToken) {
-      callback(null, true)
-    } else {
-      callback(null, false)
-    }
+    cb(null, res)
   }).catch(err => {
     console.log(err)
-    callback(err, false)
+    cb(err)
   })
 }
 
@@ -30,8 +26,11 @@ export function updateRoom(id, newData, cb) {
   })
 }
 
-export function checkOnline(roomID, clientID, cb){
-  axios.get(api.checkOnline + `?hash=${roomID}&clientID=${clientID}`).then(res => {
+export function checkOnline(hash, clientID, cb){
+  axios.post(api.checkOnline, {
+    hash: hash,
+    clientID: clientID
+  }).then(res => {
     cb && cb(null, res)
   }).catch(err => {
     cb && cb(err)
@@ -39,7 +38,10 @@ export function checkOnline(roomID, clientID, cb){
 }
 
 export function checkMeOnline(hash, cb) {
-  axios.get(api.checkOnline + `?hash=${hash}&type=me`).then(res => {
+  axios.post(api.checkOnline, {
+    hash: hash,
+    type: 'me'
+  }).then(res => {
     cb && cb(null, res)
   }).catch(err => {
     cb && cb(err)
