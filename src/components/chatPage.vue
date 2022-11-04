@@ -1,8 +1,8 @@
 <template>
   <div class="app-wrap hasTextField">
     <div class="chat-field" ref="chat_field">
-      <div v-for="(item, i) in messageList" :key="i" class="message-item"
-           :class="{in: item.type === 'in', out: item.type === 'out', system: item.type === 'system'}">
+      <div v-for="(item, i) in messageList" :key="i"
+           class="message-item" :class="item.type">
         <span>{{ item.content }}</span>
       </div>
     </div>
@@ -28,10 +28,9 @@ export default {
   computed: {},
   mounted() {
     let _ = this
+    _.setKey()
     _.checkMeOnline(_.getHash(), function (err, res) {
-      console.log('me', res.data.online)
-      
-      if (res.data.online && localStorage.getItem('room') !== _.getHash()) {
+      if (res.data.online && localStorage.getItem('hash') !== _.getHash()) {
         let m = {
           content: 'you have already logged in somewhere',
           type: 'system'
@@ -63,6 +62,12 @@ export default {
     getHash,
     checkMeOnline,
     checkOnline,
+    setKey(){
+      let _ = this
+      if(!localStorage.getItem('myKey') || localStorage.getItem('myKey') === ''){
+        localStorage.setItem('myKey', _.generateKey(_.rnd()).toString(CryptoJS.enc.HEX))
+      }
+    },
     checkFriendOnline() {
       let _ = this
       _.checkOnline(_.getHash(), _.clientID, function (err, res) {
@@ -77,7 +82,7 @@ export default {
       let _ = this
       if (_.ws.readyState === 1) {
         let old_message = data.content
-        let ciphertext = CryptoJS.Rabbit.encrypt(data.content, _.my_key)
+        let ciphertext = CryptoJS.Rabbit.encrypt(data.content, localStorage.getItem('myKey'))
         data.content = ciphertext.toString(CryptoJS.enc.HEX)
         _.ws.send(JSON.stringify(data))
         data.content = old_message
@@ -129,7 +134,38 @@ export default {
         _.ws = ws
         ws.addEventListener('open', function (e) {
           console.log('Websocket connected!')
-          _.my_key = _.generateKey(_.rnd()).toString(CryptoJS.enc.HEX)
+          _.messageList.push({
+            type: 'system g',
+            content: '✨ Connection Established (E2EE)'
+          })
+          _.messageList.push({
+            type: 'system',
+            content: '--//--'
+          })
+          _.messageList.push({
+            type: 'system l',
+            content: '🙌 Things You Need To Know!'
+          })
+          _.messageList.push({
+            type: 'system i l',
+            content: '1. We store NOTHING!'
+          })
+          _.messageList.push({
+            type: 'system i l',
+            content: '2. E2E is not absolutely SAFE!'
+          })
+          _.messageList.push({
+            type: 'system i l',
+            content: '3. Your message will only be visible when your friend is online!'
+          })
+          _.messageList.push({
+            type: 'system i l',
+            content: '4. Have fun! 🎈'
+          })
+          _.messageList.push({
+            type: 'system',
+            content: '--//--'
+          })
         })
         
         ws.addEventListener('error', function (err) {
@@ -148,7 +184,7 @@ export default {
               clientID: data.clientID
             }, function (err, res) {
               if (res) {
-                localStorage.setItem('room', _.getHash())
+                localStorage.setItem('hash', _.getHash())
                 _.checkFriendOnline()
               } else {
                 console.log(err, res)
@@ -157,13 +193,12 @@ export default {
           }
           
           if (data.KEY) {
-            _.their_key = data.KEY
-            return
+            localStorage.setItem('theirKey', data.KEY)
           }
           
           if (data.type === 'out') {
             data.type = 'in'
-            let ciphertext = CryptoJS.Rabbit.decrypt(data.content, _.their_key)
+            let ciphertext = CryptoJS.Rabbit.decrypt(data.content, localStorage.getItem('theirKey'))
             data.content = ciphertext.toString(CryptoJS.enc.Utf8)
             _.messageList.push(data)
             _.scrollFunc()
@@ -174,7 +209,7 @@ export default {
     sendKey() {
       let _ = this
       _.ws.send(JSON.stringify({
-        KEY: _.my_key
+        KEY: localStorage.getItem('myKey')
       }))
     },
     listenKey(e) {
@@ -212,8 +247,8 @@ export default {
     }
   },
   watch: {
-    friendOnline(val) {
-      if (val) {
+    friendOnline(val){
+      if(val){
         this.sendKey()
       }
     }

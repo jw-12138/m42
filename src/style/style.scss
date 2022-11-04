@@ -122,6 +122,24 @@ input {
     &.system {
       background-color: transparent;
       font-size: 12px;
+      
+      &.g{
+        span{
+          color: greenyellow;
+        }
+      }
+  
+      &.i{
+        span{
+          color: #fff;
+        }
+      }
+  
+      &.l{
+        span{
+          text-align: left;
+        }
+      }
       span {
         display: block;
         background: transparent;
@@ -129,7 +147,7 @@ input {
         max-width: 100%;
         padding: 4px 0;
         text-align: center;
-        color: #fff;
+        color: #ccc;
       }
     }
 
