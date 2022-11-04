@@ -1,22 +1,15 @@
-@use "reset.css";
+@use 'reset.css';
 
-html, body {
-  font-family: "PingFang SC", "Microsoft Sans Serif", sans-serif;
-  background: #121212;
+html,
+body {
+  font-family: 'Varela Round', 'PingFang SC', 'Microsoft Sans Serif', sans-serif;
+  background: #171717;
   color: #ffffff;
-  height: 100vh;
-  overflow: hidden;
+  max-height: 100%;
 }
 
-#app{
-  &.chat{
-    position: fixed;
-    left: 0;
-    bottom: 72px;
-    width: 100%;
-    max-height: calc(100vh - 72px);
-    overflow: auto;
-  }
+html{
+  height: 100%;
 }
 
 .app-wrap {
@@ -24,30 +17,31 @@ html, body {
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
-  
-  &.hasTextField{
-    overflow: auto;
+
+  &.hasTextField {
+    padding-bottom: 90px;
   }
 }
 
 button {
-  background: #333333;
-  border: 1px solid #555555;
+  background: #4338ca;
+  border: 1px solid #3730a3;
   color: #ffffff;
   font-size: 14px;
   border-radius: 20px;
   padding: 3px 15px;
   cursor: pointer;
-  
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
   &:active {
-    opacity: .8;
+    opacity: 0.8;
   }
 }
 
 code {
   border-radius: 3px;
-  background: #333333;
-  border: 1px solid #555555;
+  background: #171717;
+  border: 1px solid #4b5563;
   padding: 5px;
   font-size: 12px;
 }
@@ -55,8 +49,8 @@ code {
 input {
   width: 100%;
   border-radius: 3px;
-  background: #333333;
-  border: 1px solid #555555;
+  background: #171717;
+  border: 1px solid #4b5563;
   font-size: 12px;
   line-height: 24px;
   text-indent: 5px;
@@ -67,12 +61,12 @@ input {
   width: 100%;
   height: 30px;
   font-size: 10px;
-  color: #888888;
+  color: #6d7b8d;
   position: fixed;
   bottom: 0;
   left: 0;
-  background: #121212;
-  
+  background: #171717;
+
   .wrap {
     width: 100%;
     max-width: 500px;
@@ -83,14 +77,14 @@ input {
 }
 
 .text-field {
-  background: #121212;
+  background: #171717;
   position: fixed;
   width: 100%;
   height: 52px;
   left: 0;
   bottom: 30px;
   padding: 5px 10px;
-  
+
   textarea {
     box-sizing: border-box;
     border: none;
@@ -99,7 +93,7 @@ input {
     width: 100%;
     max-width: 500px;
     display: block;
-    background: #333;
+    background: #000000;
     border-radius: 6px;
     font-size: 12px;
     height: 42px;
@@ -114,21 +108,21 @@ input {
     width: 100%;
     font-size: 13px;
     margin-bottom: 4px;
-    animation: newMessage .4s ease;
-    
+    animation: newMessage 0.4s ease;
+
     span {
       display: inline-block;
       padding: 4px 13px;
-      background: #333333;
+      background: #1f2937;
       border-radius: 20px;
       max-width: 80%;
       word-break: break-word;
     }
-    
-    &.system{
+
+    &.system {
       background-color: transparent;
       font-size: 12px;
-      span{
+      span {
         display: block;
         background: transparent;
         width: 100%;
@@ -138,12 +132,12 @@ input {
         color: #fff;
       }
     }
-    
+
     &.out {
       text-align: right;
-      
+
       span {
-        background: darkslateblue;
+        background: #4338ca;
         text-align: left;
       }
     }
@@ -152,9 +146,11 @@ input {
 
 @keyframes newMessage {
   0% {
+    opacity: 0;
     transform: translateY(10px);
   }
   100% {
+    opacity: 1;
     transform: translateY(0);
   }
 }

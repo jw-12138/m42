@@ -1,7 +1,7 @@
 <template>
   <div class="app-wrap hasTextField">
     <div class="chat-field" ref="chat_field">
-      <div v-for="(item, i) in messageList" class="message-item"
+      <div v-for="(item, i) in messageList" :key="i" class="message-item"
            :class="{in: item.type === 'in', out: item.type === 'out', system: item.type === 'system'}">
         <span>{{ item.content }}</span>
       </div>
@@ -28,7 +28,6 @@ export default {
   computed: {},
   mounted() {
     let _ = this
-    document.getElementById('app').classList.add('chat')
     _.checkMeOnline(_.getHash(), function (err, res) {
       console.log('me', res.data.online)
       
@@ -87,6 +86,7 @@ export default {
       
       if (!_.friendOnline) {
         _.appendSystemMessage('notOnline')
+        _.scrollFunc()
       }
     },
     appendSystemMessage(type) {
@@ -108,7 +108,7 @@ export default {
     },
     scrollFunc() {
       setTimeout(function () {
-        document.getElementById('app').scrollTo(0, document.getElementById('app').scrollHeight)
+        window.scrollTo(0, document.body.scrollHeight)
       }, 50)
     },
     initWS() {
