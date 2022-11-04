@@ -23,6 +23,10 @@ export default {
     if (location.hash) {
       _.checkRoom()
     }
+    
+    window.addEventListener('hashchange', () => {
+      location.reload()
+    })
   },
   data() {
     return {
@@ -52,7 +56,7 @@ export default {
           location.href = location.origin
         }
         
-        if(res.data.roomID){
+        if (res.data.roomID) {
           localStorage.setItem('roomID', res.data.roomID)
         }
       })
