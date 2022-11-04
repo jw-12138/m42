@@ -21,7 +21,7 @@
 <script>
 import {v4 as uuidv4} from 'uuid'
 import CryptoJS from 'crypto-js'
-import {checkMeOnline, checkOnline, getHash, updateRoom} from '../js/utils.js'
+import {checkMeOnline, checkOnline, getHash, updateRoom, rnd, generateKey} from '../js/utils.js'
 
 export default {
   name: 'chatPage',
@@ -58,12 +58,13 @@ export default {
     })
   },
   methods: {
+    rnd,
+    generateKey,
     getHash,
     checkMeOnline,
     checkOnline,
     checkFriendOnline() {
       let _ = this
-      
       _.checkOnline(_.getHash(), _.clientID, function (err, res) {
         _.friendOnline = res.data.online ? res.data.online : false
         
@@ -76,8 +77,7 @@ export default {
       let _ = this
       if (_.ws.readyState === 1) {
         let old_message = data.content
-        let key = localStorage.getItem('roomID') + data.timestamp
-        let ciphertext = CryptoJS.Rabbit.encrypt(data.content, key)
+        let ciphertext = CryptoJS.Rabbit.encrypt(data.content, _.my_key)
         data.content = ciphertext.toString(CryptoJS.enc.HEX)
         _.ws.send(JSON.stringify(data))
         data.content = old_message
@@ -118,6 +118,9 @@ export default {
         let host = location.host
         let protocol = location.protocol
         let url = (protocol === 'http:' ? 'ws://' : 'wss://') + host
+        if(location.hostname === 'localhost'){
+          url = 'ws://localhost:5009'
+        }
         ws = new WebSocket(url)
       } catch (err) {
         console.log('Your browser does not support websocket, remotely controlled page refresh will not be executed!')
@@ -126,6 +129,7 @@ export default {
         _.ws = ws
         ws.addEventListener('open', function (e) {
           console.log('Websocket connected!')
+          _.my_key = _.generateKey(_.rnd()).toString(CryptoJS.enc.HEX)
         })
         
         ws.addEventListener('error', function (err) {
@@ -152,16 +156,26 @@ export default {
             })
           }
           
+          if (data.KEY) {
+            _.their_key = data.KEY
+            return
+          }
+          
           if (data.type === 'out') {
             data.type = 'in'
-            let key = localStorage.getItem('roomID') + data.timestamp
-            let ciphertext = CryptoJS.Rabbit.decrypt(data.content, key)
+            let ciphertext = CryptoJS.Rabbit.decrypt(data.content, _.their_key)
             data.content = ciphertext.toString(CryptoJS.enc.Utf8)
             _.messageList.push(data)
             _.scrollFunc()
           }
         })
       }
+    },
+    sendKey() {
+      let _ = this
+      _.ws.send(JSON.stringify({
+        KEY: _.my_key
+      }))
     },
     listenKey(e) {
       let _ = this
@@ -190,9 +204,18 @@ export default {
       userMessage: '',
       messageList: [],
       ws: null,
+      my_key: '',
+      their_key: '',
       clientID: '',
       fixHeight: 0,
       friendOnline: false
+    }
+  },
+  watch: {
+    friendOnline(val) {
+      if (val) {
+        this.sendKey()
+      }
     }
   }
 }

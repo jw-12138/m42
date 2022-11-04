@@ -1,7 +1,9 @@
 import axios from 'axios'
 import api from './api.js'
+import cryptoRandomString from 'crypto-random-string'
+import CryptoJS from 'crypto-js'
 
-export function getHash(){
+export function getHash() {
   return location.hash.replace('#/', '')
 }
 
@@ -26,7 +28,7 @@ export function updateRoom(id, newData, cb) {
   })
 }
 
-export function checkOnline(hash, clientID, cb){
+export function checkOnline(hash, clientID, cb) {
   axios.post(api.checkOnline, {
     hash: hash,
     clientID: clientID
@@ -46,4 +48,13 @@ export function checkMeOnline(hash, cb) {
   }).catch(err => {
     cb && cb(err)
   })
+}
+
+export function rnd() {
+  return cryptoRandomString({length: 128})
+}
+
+export function generateKey(p) {
+  let salt = CryptoJS.lib.WordArray.random(128 / 8)
+  return CryptoJS.PBKDF2(p, salt, {keySize: 512 / 32, iterations: 1000})
 }
