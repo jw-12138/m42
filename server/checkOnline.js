@@ -74,8 +74,6 @@ router.post('/', function (req, res) {
     }
   }
   
-  console.log(clientID, online)
-  
   res.json({
     online: online,
     clientID: clientID
