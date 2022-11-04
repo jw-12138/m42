@@ -8,7 +8,7 @@
     </div>
   </div>
   <div class="text-field">
-    <textarea placeholder="Enter message" v-model="userMessage" @keydown="listenKey" autofocus
+    <textarea placeholder="Write something here, hit Enter to send" v-model="userMessage" @keydown="listenKey" autofocus
               :disabled="textareaDisabled"></textarea>
   </div>
   <div class="status-bar">
