@@ -1,45 +1,36 @@
+# M42
+
 **m42** (message for two) is an Instant Messaging App.
 
 _currently in development._
 
-### feature
+## Features
 
-- no group chat, 1-on-1 only
-- no chat history stored
-- no login needed
-- easy deploy
+- 🔐 end-to-end encryption
+- ☝️ no group chat, 1-on-1 only
+- 😎 no chat history stored
+- 🫣 no login needed
+- 🫡 1-end session
+- ☠️ self-destroy room when no activity
+- ⚙️ easy deploy
 
-### deploy
+## Deploy
 
-1. clone this repo
-2. rename the `env_temp` to `.env`
-3. install dependencies and build
-
-   ```bash
-   npm i
-   npm run build
-
-   # or if you prefer yarn
-   yarn
-   yarn build
-   ```
-
-4. start the server
-
-   ```bash
-   npm run serve
-
-   # or
-   yarn serve
-   ```
+```text
+git clone https://github.com/jw-12138/m42.git
+cd m42
+npm i
+npm run build
+npm run serve
+```
 
 enjoy!
 
 ---
 
-### development
+## development
 
-#### first stage
+### first stage
 
 - [x] UI
 - [x] send text
@@ -48,7 +39,7 @@ enjoy!
   - [x] 1-end session
   - [x] end-to-end encryption
 
-#### second stage
+### second stage
 
 - [ ] send files and images
 - [ ] user selectable theme
