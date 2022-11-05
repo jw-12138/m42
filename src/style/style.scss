@@ -14,12 +14,13 @@ body {
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
+  overflow: auto;
+  height: 100vh;
+  -webkit-overflow-scrolling: touch;
 
   &.hasTextField {
     padding-bottom: 0;
     height: calc(100vh - 144px);
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
   }
 }
 
