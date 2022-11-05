@@ -5,11 +5,8 @@ body {
   font-family: 'Varela Round', 'PingFang SC', 'Microsoft Sans Serif', sans-serif;
   background: #171717;
   color: #ffffff;
-  max-height: 100%;
-}
-
-html{
-  height: 100%;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .app-wrap {
@@ -19,7 +16,10 @@ html{
   margin: 0 auto;
 
   &.hasTextField {
-    padding-bottom: 90px;
+    padding-bottom: 0;
+    height: calc(100vh - 84px);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -62,9 +62,6 @@ input {
   height: 30px;
   font-size: 10px;
   color: #6d7b8d;
-  position: fixed;
-  bottom: 0;
-  left: 0;
   background: #171717;
 
   .wrap {
@@ -78,11 +75,8 @@ input {
 
 .text-field {
   background: #171717;
-  position: fixed;
   width: 100%;
   height: 52px;
-  left: 0;
-  bottom: 30px;
   padding: 5px 10px;
 
   textarea {
@@ -135,6 +129,12 @@ input {
         }
       }
   
+      &.w{
+        span{
+          color: #c2410c;
+        }
+      }
+  
       &.l{
         span{
           text-align: left;
@@ -165,7 +165,7 @@ input {
 @keyframes newMessage {
   0% {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(0);
   }
   100% {
     opacity: 1;

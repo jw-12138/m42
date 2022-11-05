@@ -1,8 +1,7 @@
 <template>
   <div class="app-wrap hasTextField">
     <div class="chat-field" ref="chat_field">
-      <div v-for="(item, i) in messageList" :key="i"
-           class="message-item" :class="item.type">
+      <div v-for="(item, i) in messageList" :key="i" class="message-item" :class="item.type">
         <span>{{ item.content }}</span>
       </div>
     </div>
@@ -21,7 +20,7 @@
 <script>
 import {v4 as uuidv4} from 'uuid'
 import CryptoJS from 'crypto-js'
-import {checkMeOnline, checkOnline, getHash, updateRoom, rnd, generateKey} from '../js/utils.js'
+import {checkMeOnline, checkOnline, getHash, updateRoom, generateKey, encrypt, decrypt, importKey} from '../js/utils.js'
 
 export default {
   name: 'chatPage',
@@ -52,21 +51,23 @@ export default {
         
         return false
       }
-      
-      _.initWS()
     })
   },
   methods: {
-    rnd,
     generateKey,
     getHash,
     checkMeOnline,
     checkOnline,
-    setKey(){
+    encrypt,
+    decrypt,
+    importKey,
+    setKey() {
       let _ = this
-      if(!localStorage.getItem('myKey') || localStorage.getItem('myKey') === ''){
-        localStorage.setItem('myKey', _.generateKey(_.rnd()).toString(CryptoJS.enc.HEX))
-      }
+      _.generateKey(function (res) {
+        localStorage.setItem('myPubKey', JSON.stringify(res.public))
+        localStorage.setItem('myPriKey', JSON.stringify(res.private))
+        _.initWS()
+      })
     },
     checkFriendOnline() {
       let _ = this
@@ -82,39 +83,37 @@ export default {
       let _ = this
       if (_.ws.readyState === 1) {
         let old_message = data.content
-        let ciphertext = CryptoJS.Rabbit.encrypt(data.content, localStorage.getItem('myKey'))
-        data.content = ciphertext.toString(CryptoJS.enc.HEX)
-        _.ws.send(JSON.stringify(data))
-        data.content = old_message
+        
+        if(localStorage.getItem('theirKey')){
+          _.importKey('public' ,JSON.parse(localStorage.getItem('theirKey')), function (pubKey) {
+            _.encrypt(pubKey, data.content, function (res) {
+              data.content = res
+              _.ws.send(JSON.stringify(data))
+              data.content = old_message
+            })
+          })
+          
+        }else{
+          _.messageList.push({
+            type: 'system',
+            content: 'This message is not sent, cause your friend haven\'t sent their pubKey to you'
+          })
+        }
       }
       _.scrollFunc()
       
-      if (!_.friendOnline) {
-        _.appendSystemMessage('notOnline')
+      if (!_.friendOnline && localStorage.getItem('theirKey')) {
+        _.messageList.push({
+          type: 'system',
+          content: 'your friend is not online'
+        })
         _.scrollFunc()
       }
     },
-    appendSystemMessage(type) {
-      let message = ''
-      let _ = this
-      if (type === 'notOnline') {
-        message = 'your friend is not online'
-      }
-      
-      let m = {
-        content: message,
-        type: 'system',
-        status: 0,
-        hash: uuidv4(),
-        timestamp: Date.now()
-      }
-      
-      _.messageList.push(m)
-    },
     scrollFunc() {
       setTimeout(function () {
-        window.scrollTo(0, document.body.scrollHeight)
-      }, 50)
+        document.querySelector('.app-wrap.hasTextField').scrollTo(0, document.querySelector('.app-wrap.hasTextField').scrollHeight)
+      }, 20)
     },
     initWS() {
       let ws = null
@@ -123,7 +122,7 @@ export default {
         let host = location.host
         let protocol = location.protocol
         let url = (protocol === 'http:' ? 'ws://' : 'wss://') + host
-        if(location.hostname === 'localhost'){
+        if (location.hostname === 'localhost') {
           url = 'ws://localhost:5009'
         }
         ws = new WebSocket(url)
@@ -136,7 +135,7 @@ export default {
           console.log('Websocket connected!')
           _.messageList.push({
             type: 'system g',
-            content: '✨ Connection Established (E2EE)'
+            content: '✨ Connection Established'
           })
           _.messageList.push({
             type: 'system',
@@ -152,7 +151,7 @@ export default {
           })
           _.messageList.push({
             type: 'system i l',
-            content: '2. E2E is not absolutely SAFE!'
+            content: '2. E2EE is not absolutely SAFE!'
           })
           _.messageList.push({
             type: 'system i l',
@@ -166,6 +165,13 @@ export default {
             type: 'system',
             content: '--//--'
           })
+          
+          if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+            _.messageList.push({
+              type: 'system w',
+              content: 'warning: you\'re visiting this website through http protocol which is considered unsafe.'
+            })
+          }
         })
         
         ws.addEventListener('error', function (err) {
@@ -194,14 +200,21 @@ export default {
           
           if (data.KEY) {
             localStorage.setItem('theirKey', data.KEY)
+            _.messageList.push({
+              type: 'system',
+              content: 'New Public Key Received'
+            })
           }
           
           if (data.type === 'out') {
-            data.type = 'in'
-            let ciphertext = CryptoJS.Rabbit.decrypt(data.content, localStorage.getItem('theirKey'))
-            data.content = ciphertext.toString(CryptoJS.enc.Utf8)
-            _.messageList.push(data)
-            _.scrollFunc()
+            _.importKey('private', JSON.parse(localStorage.getItem('myPriKey')), function (priKey) {
+              _.decrypt(priKey, data.content, function (res) {
+                data.content = res
+                data.type = 'in'
+                _.messageList.push(data)
+                _.scrollFunc()
+              })
+            })
           }
         })
       }
@@ -209,7 +222,7 @@ export default {
     sendKey() {
       let _ = this
       _.ws.send(JSON.stringify({
-        KEY: localStorage.getItem('myKey')
+        KEY: localStorage.getItem('myPubKey')
       }))
     },
     listenKey(e) {
@@ -247,8 +260,8 @@ export default {
     }
   },
   watch: {
-    friendOnline(val){
-      if(val){
+    friendOnline(val) {
+      if (val) {
         this.sendKey()
       }
     }

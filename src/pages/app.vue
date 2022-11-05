@@ -1,7 +1,7 @@
 <template>
   <landing-page @createRoom="createRoom" v-show="showLandingPage" style="display: none"></landing-page>
   <create-room v-if="showCreateRoom" :token="token_b" :url="baseUrl + token_a" @enterRoom="enterRoom"></create-room>
-  <chat-page v-if="showChat"></chat-page>
+  <chat-page v-if="showChat" :key="windowHash"></chat-page>
 </template>
 
 <script>
@@ -16,16 +16,32 @@ export default {
   computed: {
     baseUrl: function () {
       return location.origin + '/#/'
+    },
+    windowHash() {
+      return location.hash
     }
   },
   mounted() {
     let _ = this
+    
+    if(!window.crypto){
+      alert('your browser does not support native encrypt functions, so bye!')
+      window.close()
+      return
+    }
+  
+    if(!window.TextEncoder){
+      alert('your browser does not support native text encode functions, so bye!')
+      window.close()
+      return
+    }
+    
     if (location.hash) {
       _.checkRoom()
     }
     
     window.addEventListener('hashchange', () => {
-      location.reload()
+      _.checkRoom()
     })
   },
   data() {

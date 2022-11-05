@@ -44,7 +44,8 @@ export default {
   },
   mounted() {
     this.pageLoaded = true
-    localStorage.removeItem('myKey')
+    localStorage.removeItem('myPubKey')
+    localStorage.removeItem('myPriKey')
   },
   methods: {
     createRoom() {

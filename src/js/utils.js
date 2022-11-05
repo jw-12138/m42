@@ -54,7 +54,112 @@ export function rnd() {
   return cryptoRandomString({length: 128})
 }
 
-export function generateKey(p) {
-  let salt = CryptoJS.lib.WordArray.random(128 / 8)
-  return CryptoJS.PBKDF2(p, salt, {keySize: 512 / 32, iterations: 1000})
+export function generateKey(cb) {
+  let pair = {
+    private: {},
+    public: {}
+  }
+  window.crypto.subtle.generateKey(
+    {
+      name: 'RSA-OAEP',
+      modulusLength: 2048,
+      publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+      hash: {name: 'SHA-256'}
+    },
+    true,
+    ['encrypt', 'decrypt']
+  )
+    .then(function (key) {
+      pair.public = key.publicKey
+      pair.private = key.privateKey
+      exportPrivate()
+    })
+    .catch(function (err) {
+      console.error(err)
+    })
+  
+  let keyData = {}
+  
+  let exportPrivate = function () {
+    window.crypto.subtle.exportKey(
+      'jwk',
+      pair.private
+    )
+      .then(function (key) {
+        keyData.private = key
+        exportPublic()
+      })
+      .catch(function (err) {
+        console.error(err)
+      })
+  }
+  
+  let exportPublic = function () {
+    window.crypto.subtle.exportKey(
+      'jwk',
+      pair.public
+    )
+      .then(function (key) {
+        keyData.public = key
+        cb && cb(keyData)
+      })
+      .catch(function (err) {
+        console.error(err)
+      })
+  }
+}
+
+export function encrypt(key, data, cb) {
+  window.crypto.subtle.encrypt(
+    {
+      name: 'RSA-OAEP'
+    },
+    key,
+    new TextEncoder().encode(data)
+  )
+    .then(function (encrypted) {
+      let u = new Uint8Array(encrypted)
+      let a = Array.from(u)
+      cb && cb(a)
+    })
+    .catch(function (err) {
+      console.error(err)
+    })
+}
+
+export function decrypt(key, data, cb) {
+  let u = Uint8Array.from(data)
+  window.crypto.subtle.decrypt(
+    {
+      name: 'RSA-OAEP'
+    },
+    key,
+    u
+  )
+    .then(function (decrypted) {
+      let dec = new Uint8Array(decrypted)
+      cb && cb(new TextDecoder().decode(dec))
+    })
+    .catch(function (err) {
+      console.error(err)
+    })
+}
+
+export function importKey(type, key, cb) {
+  window.crypto.subtle.importKey(
+    'jwk',
+    key,
+    {
+      name: 'RSA-OAEP',
+      hash: {name: 'SHA-256'}
+    },
+    false,
+    type === 'private' ? ['decrypt'] :['encrypt']
+  )
+    .then(function (publicKey) {
+      cb && cb(publicKey)
+    })
+    .catch(function (err) {
+      console.error(err)
+    })
 }
