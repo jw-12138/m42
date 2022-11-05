@@ -16,15 +16,34 @@ _currently in development._
 
 ## Deploy
 
-```text
+### Prerequisites
+
+- nodejs 12+
+- npm 6+
+
+```bash
+# clone repo
 git clone https://github.com/jw-12138/m42.git
 cd m42
+
+# copy `env_temp` to `.env`
+# Linux / macOS
+cp env_temp .env
+
+# Windows
+copy env_temp .env
+
+# install dependencies
 npm i
+
+# build m42
 npm run build
+
+# run m42 server
 npm run serve
 ```
 
-enjoy!
+now visit `localhost:5008`, enjoy!
 
 ---
 
