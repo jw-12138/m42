@@ -1,5 +1,8 @@
 <template>
   <div class="app-wrap hasTextField">
+    <div class="fake-field" :style="{
+      height: fixHeight + 'px'
+    }"></div>
     <div class="chat-field" ref="chat_field">
       <div v-for="(item, i) in messageList" :key="i" class="message-item" :class="item.type">
         <span>{{ item.content }}</span>
@@ -21,7 +24,6 @@
 
 <script>
 import {v4 as uuidv4} from 'uuid'
-import CryptoJS from 'crypto-js'
 import {checkMeOnline, checkOnline, getHash, updateRoom, generateKey, encrypt, decrypt, importKey} from '../js/utils.js'
 
 export default {
@@ -30,6 +32,12 @@ export default {
   mounted() {
     let _ = this
     _.setKey()
+    
+    let s = setInterval(_.setFixHeight, 20)
+    setTimeout(function () {
+      clearInterval(s)
+      setInterval(_.setFixHeight, 300)
+    }, 2000)
     _.checkMeOnline(_.getHash(), function (err, res) {
       if (res.data.online && localStorage.getItem('hash') !== _.getHash()) {
         let m = {
@@ -63,6 +71,12 @@ export default {
     encrypt,
     decrypt,
     importKey,
+    setFixHeight () {
+      let _ = this
+      let chatHeight = _.$refs.chat_field.clientHeight
+      let windowHeight = window.outerHeight
+      _.fixHeight = windowHeight - chatHeight - 170
+    },
     setKey() {
       let _ = this
       _.generateKey(function (res) {

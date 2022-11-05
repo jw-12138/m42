@@ -1,7 +1,5 @@
 import axios from 'axios'
 import api from './api.js'
-import cryptoRandomString from 'crypto-random-string'
-import CryptoJS from 'crypto-js'
 
 export function getHash() {
   return location.hash.replace('#/', '')
@@ -48,10 +46,6 @@ export function checkMeOnline(hash, cb) {
   }).catch(err => {
     cb && cb(err)
   })
-}
-
-export function rnd() {
-  return cryptoRandomString({length: 128})
 }
 
 export function generateKey(cb) {
