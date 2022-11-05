@@ -13,6 +13,8 @@
   <div class="status-bar">
     <div class="wrap">
       Friend Online: <span :style="{color: friendOnline ? 'greenyellow' : 'red'}">{{ friendOnline ? 'Y' : 'N' }}</span>
+      <br>
+      <button style="margin-top: 5px" @click="quitChat">👋 Quit Chat</button>
     </div>
   </div>
 </template>
@@ -68,6 +70,12 @@ export default {
         localStorage.setItem('myPriKey', JSON.stringify(res.private))
         _.initWS()
       })
+    },
+    quitChat(){
+      let c = confirm('Are you sure?')
+      if(c){
+        location.href = location.href.split('#')[0]
+      }
     },
     checkFriendOnline() {
       let _ = this
