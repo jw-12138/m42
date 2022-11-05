@@ -29,7 +29,6 @@ cd m42
 # copy `env_temp` to `.env`
 # Linux / macOS
 cp env_temp .env
-
 # Windows
 copy env_temp .env
 
