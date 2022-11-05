@@ -33,11 +33,7 @@ export default {
     let _ = this
     _.setKey()
     
-    let s = setInterval(_.setFixHeight, 20)
-    setTimeout(function () {
-      clearInterval(s)
-      setInterval(_.setFixHeight, 300)
-    }, 2000)
+    setInterval(_.setFixHeight, 20)
     _.checkMeOnline(_.getHash(), function (err, res) {
       if (res.data.online && localStorage.getItem('hash') !== _.getHash()) {
         let m = {
