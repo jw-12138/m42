@@ -74,8 +74,8 @@ export default {
     setFixHeight () {
       let _ = this
       let chatHeight = _.$refs.chat_field.clientHeight
-      let windowHeight = window.outerHeight
-      _.fixHeight = windowHeight - chatHeight - 170
+      let windowHeight = document.querySelector('.app-wrap.hasTextField').clientHeight
+      _.fixHeight = windowHeight - chatHeight - 30
     },
     setKey() {
       let _ = this
