@@ -49,6 +49,15 @@ wss.on('connection', function connection(ws, req, client) {
     clientID: client
   }))
   
+  setTimeout(function () {
+    let cThat = getThatClient(client)
+    if (cThat && lookup[cThat]) {
+      lookup[cThat].send(JSON.stringify({
+        ONLINE: true
+      }))
+    }
+  }, 500)
+  
   lookup[client].on('message', (data) => {
     let cThat = getThatClient(client)
     if (cThat && lookup[cThat]) {
@@ -61,10 +70,16 @@ wss.on('connection', function connection(ws, req, client) {
   })
   
   lookup[client].on('close', function (code, reason) {
+    let cThat = getThatClient(client)
+    if (cThat && lookup[cThat]) {
+      lookup[cThat].send(JSON.stringify({
+        ONLINE: false
+      }))
+    }
+  
     let room = getRoom(client)
     deleteClientData(room, client)
     delete lookup[client]
-    console.log(code, reason.toString())
   })
 })
 

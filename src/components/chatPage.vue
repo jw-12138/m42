@@ -260,10 +260,6 @@ export default {
       let _ = this
       _.checkOnline(_.getHash(), _.clientID, function (err, res) {
         _.friendOnline = res.data.online ? res.data.online : false
-        
-        setTimeout(function () {
-          _.checkFriendOnline()
-        }, 1500)
       })
     },
     sendMessage: function (data) {
@@ -377,12 +373,12 @@ export default {
           let data = JSON.parse(e.data)
           if (data.clientID) {
             _.clientID = data.clientID
+            _.checkFriendOnline()
             updateRoom(_.getHash(), {
               clientID: data.clientID
             }, function (err, res) {
               if (res) {
                 localStorage.setItem('hash', _.getHash())
-                _.checkFriendOnline()
               } else {
                 console.log(err, res)
               }
@@ -390,11 +386,16 @@ export default {
           }
           
           if (data.KEY) {
+            _.checkFriendOnline()
             localStorage.setItem('theirKey', data.KEY)
             _.messageList.push({
               type: 'system',
               content: 'New Public Key Received'
             })
+          }
+          
+          if (data.ONLINE){
+            _.checkFriendOnline()
           }
           
           if (data.type === 'out') {
@@ -413,8 +414,6 @@ export default {
                   }
                 })
               })
-              
-              
             })
           }
         })
