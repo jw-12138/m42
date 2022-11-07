@@ -76,10 +76,12 @@ wss.on('connection', function connection(ws, req, client) {
         ONLINE: false
       }))
     }
-  
+    
     let room = getRoom(client)
     deleteClientData(room, client)
     delete lookup[client]
+  
+    console.log(client, code)
   })
 })
 

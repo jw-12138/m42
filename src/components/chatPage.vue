@@ -394,7 +394,7 @@ export default {
             })
           }
           
-          if (data.ONLINE){
+          if (data.ONLINE !== undefined){
             _.checkFriendOnline()
           }
           
