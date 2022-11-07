@@ -129,7 +129,7 @@ export default {
       _.formFile(fakeEvent)
     },
     validFileSize(file) {
-      if (file.size > 1024 * 1024) {
+      if (file.size > 2 * 1024 * 1024) {
         alert('🤯 This file is way too big for end-to-end encryption(2Mb limit). We recommend you use a file sharing service in this situation.')
         this.removeFile()
         return false
