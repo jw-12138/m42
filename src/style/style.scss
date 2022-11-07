@@ -38,7 +38,7 @@ button {
     opacity: 0.8;
   }
   
-  &.info{
+  &.info {
     background: #374151;
     border: 1px solid #1f2937;
   }
@@ -88,6 +88,7 @@ input {
   padding: 5px 10px;
   display: flex;
   justify-content: center;
+  align-items: center;
   
   .attach-file {
     width: 36px;
@@ -96,7 +97,7 @@ input {
     font-size: 12px;
     padding: 0;
     
-    label{
+    label {
       width: 36px;
       height: 36px;
       border-radius: 36px;
@@ -111,7 +112,7 @@ input {
     }
   }
   
-  #file{
+  #file {
     position: fixed;
     left: -9999px;
     height: 0;
@@ -152,15 +153,34 @@ input {
       max-width: 80%;
       word-break: break-word;
       
-      &.img{
+      &.img {
         padding: 5px;
         border-radius: 12px;
+        text-align: center;
+        
+        svg {
+          display: inline-block;
+          fill: #ffffff;
+        }
+      }
+      
+      &.file {
+        padding: 10px;
+        border-radius: 12px;
+        text-align: center;
+        
+        svg {
+          display: inline-block;
+          fill: #ffffff;
+        }
       }
     }
     
-    img{
+    img {
       max-width: 100%;
       border-radius: 6px;
+      min-height: 30px;
+      min-width: 60px;
     }
     
     &.system {
@@ -208,6 +228,10 @@ input {
       span {
         background: #4338ca;
         text-align: left;
+        
+        &.file {
+          text-align: center;
+        }
       }
     }
   }
@@ -223,39 +247,51 @@ input {
   top: 0;
   left: 0;
   
-  .title{
+  .title {
     margin-top: 30px;
     text-align: center;
   }
   
-  .img{
-    width: 500px;
+  .img {
+    width: 100%;
+    text-align: center;
     max-width: 100vw;
+    max-height: 550px;
     margin: 20px auto;
+    
     img {
-      width: 100%;
+      display: inline-block;
       max-width: 500px;
-      max-height: 500px;
+      max-height: 400px;
     }
     
-    .name{
+    .name {
       margin-top: 10px;
       font-style: italic;
       text-align: center;
       line-height: 1.6;
       font-size: 12px;
     }
+    
+    .process {
+      margin-top: 10px;
+      text-align: center;
+      line-height: 1.6;
+      font-size: 12px;
+    }
   }
-  .buttons{
+  
+  .buttons {
     text-align: center;
     padding: 10px 0;
-    button{
+    
+    button {
       margin: 0 5px;
     }
   }
 }
 
-.hiddenLinks{
+.hiddenLinks {
   position: fixed;
   left: -9999px;
   height: 0;

@@ -170,7 +170,7 @@ export function splitAsChunk(str, cb) {
     let el = blob.slice(i * splitSize, (i + 1) * splitSize)
     el.text().then(res => {
       chunkArr[i] = res
-      if(i + 1 === loopTimes){
+      if (i + 1 === loopTimes) {
         cb && cb(null, chunkArr)
       }
     }).catch(err => {

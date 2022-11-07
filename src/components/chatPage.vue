@@ -5,10 +5,17 @@
     }"></div>
     <div class="chat-field" ref="chat_field">
       <div v-for="(item, i) in messageList" :key="i" class="message-item" :class="item.type">
-        <span v-if="!item.isImage">{{ item.content }}</span>
-        <span v-if="item.isImage" :class="{
-          img: item.isImage
-        }"><img :src="item.content" @click="viewImage(item.content)"></span>
+        <span v-if="!item.fileType">{{ item.content }}</span>
+        <span v-if="item.fileType && item.fileType.startsWith('image/')" :class="{
+          img: item.fileType.startsWith('image/')
+        }"><img :src="item.content" @click="viewFile(item.content, item.name)" alt=""></span>
+        
+        <span v-if="item.fileType && !item.fileType.startsWith('image/')" @click="viewFile(item.content, item.name)" :class="{
+          file: item.fileType && !item.fileType.startsWith('image/')
+        }" >
+          <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48"><path d="M24 31.4q-.35 0-.625-.1t-.575-.4l-7.7-7.7q-.5-.5-.475-1.2.025-.7.525-1.2.55-.5 1.25-.5t1.2.5l4.7 4.75V8.85q0-.7.5-1.2t1.2-.5q.75 0 1.225.5.475.5.475 1.2v16.7l4.75-4.75q.5-.5 1.2-.5t1.25.5q.5.5.5 1.2t-.5 1.2l-7.7 7.7q-.3.3-.6.4-.3.1-.6.1Zm-13.2 9.15q-1.35 0-2.375-1T7.4 37.15v-6q0-.7.5-1.2t1.25-.5q.7 0 1.175.5.475.5.475 1.2v6h26.35v-6q0-.7.5-1.2t1.25-.5q.7 0 1.175.5.475.5.475 1.2v6q0 1.4-1 2.4t-2.4 1Z"/></svg><br>
+          <em>{{item.name}}</em>
+        </span>
       </div>
     </div>
   </div>
@@ -21,7 +28,7 @@
         </svg>
       </label>
     </button>
-    <input type="file" class="file" id="file" accept="image/*" @change="formFile">
+    <input type="file" class="file" id="file" @change="formFile">
     <textarea placeholder="Write something here, hit Enter to send" v-model="userMessage" @keydown="listenKey" autofocus
               :disabled="textareaDisabled"></textarea>
   </div>
@@ -32,24 +39,38 @@
       <button style="margin-top: 5px" @click="quitChat">👋 Quit Chat</button>
     </div>
   </div>
-  <div class="file-upload" v-show="imagePreview">
+  <div class="file-upload" v-show="imagePreview || waitingForFile">
     <div class="title">
       Please confirm
     </div>
     <div class="img">
       <img :src="imagePreviewSrc" alt="">
       <div class="name">{{ imagePreviewName }}</div>
+      <div class="process" v-show="waitingForFile">
+        Separating as chunks: {{(fileSeparateProgress * 100).toFixed(2)}}%
+      </div>
     </div>
     <div class="buttons">
-      <button @click="sendFile">Send</button>
-      <button class="info" @click="removeFile">Cancel</button>
+      <button @click="sendFile" id="sendFile" :disabled="waitingForFile">Send</button>
+      <button class="info" @click="removeFile" :disabled="waitingForFile">Cancel</button>
     </div>
   </div>
 </template>
 
 <script>
 import {v4 as uuidv4} from 'uuid'
-import {checkMeOnline, checkOnline, getHash, updateRoom, generateKey, encrypt, decrypt, importKey, splitAsChunk, reformChunkAsString} from '../js/utils.js'
+import {
+  checkMeOnline,
+  checkOnline,
+  getHash,
+  updateRoom,
+  generateKey,
+  encrypt,
+  decrypt,
+  importKey,
+  splitAsChunk,
+  reformChunkAsString
+} from '../js/utils.js'
 
 export default {
   name: 'chatPage',
@@ -103,39 +124,50 @@ export default {
         return
       }
       let file = e.clipboardData.files[0]
-      if (!_.validFileSize(file)) {
-        return
-      }
-      if (file.type.startsWith('image/')) {
-        fakeEvent.target.files[0] = file
-        _.formFile(fakeEvent)
-      }
+      
+      fakeEvent.target.files[0] = file
+      _.formFile(fakeEvent)
     },
     validFileSize(file) {
-      if (file.size > 0.5 * 1024 * 1024) {
-        alert('🤯 This file is way too big for end-to-end encryption, try transcode it under 500Kb. In this situation we recommend you use a file sharing service.')
+      if (file.size > 1024 * 1024) {
+        alert('🤯 This file is way too big for end-to-end encryption(2Mb limit). We recommend you use a file sharing service in this situation.')
         this.removeFile()
         return false
+      }
+      
+      if (file.size > 0.3 * 1024 * 1024) {
+        let c = confirm(`🧐 This file is a little too big for E2EE (${(file.size / 1024 / 1024).toFixed(1)}Mb), this is gonna take a while to separate file as chunks, and your browser might freeze in the process, are you sure to keep on going?`)
+        if (!c) {
+          this.removeFile()
+          return false
+        }
       }
       
       return true
     },
     sendFile() {
       let _ = this
-      splitAsChunk(_.imagePreviewSrc, function (err, chunks) {
+      splitAsChunk(_.imagePreviewSrc, function (err, chunks, percent) {
         let chunkID = uuidv4()
         let newChunkArr = []
-        if(!chunks){
+        if (err) {
           console.log(err)
           return
         }
+        if (!chunks) {
+          _.fileSeparateProgress = percent
+          _.waitingForFile = true
+          return
+        }
+        
+        _.waitingForFile = false
         let chunkTotal = 0
         chunks.forEach((el, index) => {
           let t = {}
           t.sequence = index
           t.content = el
           chunkTotal++
-    
+          
           newChunkArr.push(t)
         })
         let m = {
@@ -146,7 +178,8 @@ export default {
           },
           old_message: _.imagePreviewSrc,
           type: 'out',
-          isImage: true,
+          name: _.imagePreviewName,
+          fileType: _.fileTypePreview,
           status: 0,
           hash: uuidv4(),
           timestamp: Date.now()
@@ -160,6 +193,7 @@ export default {
       this.imagePreviewSrc = ''
       this.imagePreview = false
       this.imagePreviewName = ''
+      this.fileTypePreview = ''
     },
     formFile(e) {
       let _ = this
@@ -178,6 +212,8 @@ export default {
         _.imagePreviewName = file.name
         _.imagePreviewSrc = res
         _.imagePreview = true
+        _.fileTypePreview = file.type || 'unknown'
+        document.getElementById('sendFile').focus()
       })
     },
     fileToBase64(file, cb) {
@@ -196,13 +232,13 @@ export default {
       let windowHeight = document.querySelector('.app-wrap.hasTextField').clientHeight
       _.fixHeight = windowHeight - chatHeight - 30
     },
-    viewImage(src) {
+    viewFile(src, name) {
       let downloadLink = document.createElement('a')
       document.body.appendChild(downloadLink)
       downloadLink.classList.add('hiddenLinks')
       downloadLink.href = src
       downloadLink.target = '_blank'
-      downloadLink.download = uuidv4()
+      downloadLink.download = name
       downloadLink.click()
     },
     setKey() {
@@ -235,16 +271,16 @@ export default {
         let old_message = data.old_message
         delete data.old_message
         
-        if (localStorage.getItem('theirKey')) {
+        if (localStorage.getItem('theirKey') && _.friendOnline) {
           _.importKey('public', JSON.parse(localStorage.getItem('theirKey')), function (pubKey) {
             data.content.data.forEach((el, index) => {
               _.encrypt(pubKey, el.content, function (res) {
                 el.content = res
                 data.content.data[index] = el
                 
-                if((index + 1) === data.content.data.length){
+                if ((index + 1) === data.content.data.length) {
                   _.ws.send(JSON.stringify(data))
-  
+                  
                   data.content = old_message
                   _.userMessage = ''
                   _.messageList.push(data)
@@ -253,6 +289,12 @@ export default {
               })
             })
           })
+        } else if (!_.friendOnline && localStorage.getItem('theirKey')) {
+          _.messageList.push({
+            type: 'system',
+            content: 'your friend is not online'
+          })
+          _.scrollFunc()
         } else {
           _.messageList.push({
             type: 'system',
@@ -261,14 +303,6 @@ export default {
         }
       }
       _.scrollFunc()
-      
-      if (!_.friendOnline && localStorage.getItem('theirKey')) {
-        _.messageList.push({
-          type: 'system',
-          content: 'your friend is not online'
-        })
-        _.scrollFunc()
-      }
     },
     scrollFunc() {
       setTimeout(function () {
@@ -315,11 +349,7 @@ export default {
           })
           _.messageList.push({
             type: 'system i l',
-            content: '3. Your message will only be visible when your friend is online!'
-          })
-          _.messageList.push({
-            type: 'system i l',
-            content: '4. Have fun! 🎈'
+            content: '3. Have fun! 🎈'
           })
           _.messageList.push({
             type: 'system',
@@ -373,7 +403,7 @@ export default {
                 _.decrypt(priKey, el.content, function (res) {
                   chunks.push(res)
                   data.type = 'in'
-                  if(index + 1 === data.content.data.length){
+                  if (index + 1 === data.content.data.length) {
                     reformChunkAsString(chunks, function (err, res) {
                       data.content = res
                       _.messageList.push(data)
@@ -403,11 +433,15 @@ export default {
       e.preventDefault()
       
       if (_.userMessage) {
-        splitAsChunk(_.userMessage, function (err, chunks) {
+        splitAsChunk(_.userMessage, function (err, chunks, percent) {
           let chunkID = uuidv4()
           let newChunkArr = []
-          if(!chunks){
+          if (err) {
             console.log(err)
+            return
+          }
+          if (!chunks) {
+            _.fileSeparateProgress = percent
             return
           }
           let chunkTotal = 0
@@ -416,10 +450,10 @@ export default {
             t.sequence = index
             t.content = el
             chunkTotal++
-  
+            
             newChunkArr.push(t)
           })
-  
+          
           let m = {
             content: {
               id: chunkID,
@@ -451,7 +485,9 @@ export default {
       friendOnline: false,
       imagePreview: false,
       imagePreviewSrc: '',
-      imagePreviewName: ''
+      imagePreviewName: '',
+      waitingForFile: false,
+      fileSeparateProgress: 0
     }
   },
   watch: {
