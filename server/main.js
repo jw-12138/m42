@@ -53,7 +53,6 @@ wss.on('connection', function connection(ws, req, client) {
     let cThat = getThatClient(client)
     if (cThat && lookup[cThat]) {
       lookup[cThat].send(data.toString())
-      console.log('sent', data.toString())
     }
     
     updateData(client, {
