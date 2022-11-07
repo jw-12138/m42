@@ -1,8 +1,8 @@
-@use 'reset.css';
+@use "reset.css";
 
 html,
 body {
-  font-family: 'Varela Round', 'PingFang SC', 'Microsoft Sans Serif', sans-serif;
+  font-family: "Varela Round", "PingFang SC", "Microsoft Sans Serif", sans-serif;
   background: #171717;
   color: #ffffff;
   height: 100vh;
@@ -17,7 +17,7 @@ body {
   overflow: auto;
   height: 100vh;
   -webkit-overflow-scrolling: touch;
-
+  
   &.hasTextField {
     padding-bottom: 0;
     height: calc(100vh - 144px);
@@ -33,9 +33,14 @@ button {
   padding: 3px 15px;
   cursor: pointer;
   box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-
+  
   &:active {
     opacity: 0.8;
+  }
+  
+  &.info{
+    background: #374151;
+    border: 1px solid #1f2937;
   }
 }
 
@@ -64,7 +69,7 @@ input {
   font-size: 10px;
   color: #6d7b8d;
   background: #171717;
-
+  
   .wrap {
     width: 100%;
     max-width: 500px;
@@ -77,15 +82,49 @@ input {
 .text-field {
   background: #171717;
   width: 100%;
+  max-width: 500px;
   height: 62px;
+  margin: 0 auto;
   padding: 5px 10px;
-
+  display: flex;
+  justify-content: center;
+  
+  .attach-file {
+    width: 36px;
+    height: 36px;
+    border-radius: 36px;
+    font-size: 12px;
+    padding: 0;
+    
+    label{
+      width: 36px;
+      height: 36px;
+      border-radius: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    svg {
+      transform: scale(.4) translateX(-5px);
+      fill: #ffffff;
+    }
+  }
+  
+  #file{
+    position: fixed;
+    left: -9999px;
+    height: 0;
+    border: none;
+    pointer-events: none;
+  }
+  
   textarea {
     box-sizing: border-box;
     border: none;
     margin: 0 auto;
     outline: none;
-    width: 100%;
+    width: calc(100% - 52px);
     max-width: 500px;
     display: block;
     background: #000000;
@@ -104,7 +143,7 @@ input {
     font-size: 13px;
     margin-bottom: 4px;
     animation: newMessage 0.4s ease;
-
+    
     span {
       display: inline-block;
       padding: 4px 13px;
@@ -112,35 +151,46 @@ input {
       border-radius: 20px;
       max-width: 80%;
       word-break: break-word;
+      
+      &.img{
+        padding: 5px;
+        border-radius: 12px;
+      }
     }
-
+    
+    img{
+      max-width: 100%;
+      border-radius: 6px;
+    }
+    
     &.system {
       background-color: transparent;
       font-size: 12px;
       
-      &.g{
-        span{
+      &.g {
+        span {
           color: greenyellow;
         }
       }
-  
-      &.i{
-        span{
-          color: #fff;
+      
+      &.i {
+        span {
+          color: #ffffff;
         }
       }
-  
-      &.w{
-        span{
+      
+      &.w {
+        span {
           color: #c2410c;
         }
       }
-  
-      &.l{
-        span{
+      
+      &.l {
+        span {
           text-align: left;
         }
       }
+      
       span {
         display: block;
         background: transparent;
@@ -148,19 +198,67 @@ input {
         max-width: 100%;
         padding: 4px 0;
         text-align: center;
-        color: #ccc;
+        color: #cccccc;
       }
     }
-
+    
     &.out {
       text-align: right;
-
+      
       span {
         background: #4338ca;
         text-align: left;
       }
     }
   }
+}
+
+.file-upload {
+  position: fixed;
+  z-index: 2001;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(#000, .7);
+  backdrop-filter: blur(7px);
+  top: 0;
+  left: 0;
+  
+  .title{
+    margin-top: 30px;
+    text-align: center;
+  }
+  
+  .img{
+    width: 500px;
+    max-width: 100vw;
+    margin: 20px auto;
+    img {
+      width: 100%;
+      max-width: 500px;
+      max-height: 500px;
+    }
+    
+    .name{
+      margin-top: 10px;
+      font-style: italic;
+      text-align: center;
+      line-height: 1.6;
+      font-size: 12px;
+    }
+  }
+  .buttons{
+    text-align: center;
+    padding: 10px 0;
+    button{
+      margin: 0 5px;
+    }
+  }
+}
+
+.hiddenLinks{
+  position: fixed;
+  left: -9999px;
+  height: 0;
 }
 
 @keyframes newMessage {

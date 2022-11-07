@@ -148,7 +148,7 @@ export function importKey(type, key, cb) {
       hash: {name: 'SHA-256'}
     },
     false,
-    type === 'private' ? ['decrypt'] :['encrypt']
+    type === 'private' ? ['decrypt'] : ['encrypt']
   )
     .then(function (publicKey) {
       cb && cb(publicKey)
@@ -156,4 +156,36 @@ export function importKey(type, key, cb) {
     .catch(function (err) {
       console.error(err)
     })
+}
+
+export function splitAsChunk(str, cb) {
+  str = encodeURI(str)
+  let blob = new Blob([str], {
+    type: 'text/plain'
+  })
+  let splitSize = 150
+  let chunkArr = []
+  let loopTimes = Math.ceil(blob.size / splitSize)
+  for (let i = 0; i < loopTimes; i++) {
+    let el = blob.slice(i * splitSize, (i + 1) * splitSize)
+    el.text().then(res => {
+      chunkArr[i] = res
+      if(i + 1 === loopTimes){
+        cb && cb(null, chunkArr)
+      }
+    }).catch(err => {
+      cb && cb(err)
+    })
+  }
+}
+
+export function reformChunkAsString(chunks, cb) {
+  let blob = new Blob(chunks, {
+    type: 'text/plain'
+  })
+  blob.text().then(res => {
+    cb && cb(null, decodeURI(res))
+  }).catch(err => {
+    cb && cb(err)
+  })
 }

@@ -61,7 +61,7 @@ now visit `localhost:5008`, enjoy!
 
 ### second stage
 
-- [ ] send files and images
+- [x] send images
 - [ ] user selectable theme
 - [ ] push notification
 - [ ] notification sound

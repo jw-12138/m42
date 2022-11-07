@@ -5,11 +5,23 @@
     }"></div>
     <div class="chat-field" ref="chat_field">
       <div v-for="(item, i) in messageList" :key="i" class="message-item" :class="item.type">
-        <span>{{ item.content }}</span>
+        <span v-if="!item.isImage">{{ item.content }}</span>
+        <span v-if="item.isImage" :class="{
+          img: item.isImage
+        }"><img :src="item.content" @click="viewImage(item.content)"></span>
       </div>
     </div>
   </div>
   <div class="text-field">
+    <button class="attach-file">
+      <label for="file">
+        <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48">
+          <path
+            d="M23 45.4q-5.15 0-8.775-3.55T10.6 33.2V11.15q0-3.7 2.575-6.3 2.575-2.6 6.275-2.6 3.75 0 6.325 2.6t2.575 6.35v19.95q0 2.25-1.55 3.825-1.55 1.575-3.8 1.575-2.3 0-3.825-1.65-1.525-1.65-1.525-4V12.6q0-.7.45-1.125.45-.425 1.1-.425.65 0 1.125.425T20.8 12.6v18.45q0 1 .65 1.7t1.55.7q.95 0 1.575-.675t.625-1.625v-20q0-2.4-1.675-4.05T19.45 5.45q-2.4 0-4.075 1.65Q13.7 8.75 13.7 11.15V33.3q0 3.8 2.725 6.4Q19.15 42.3 23 42.3q3.9 0 6.6-2.625 2.7-2.625 2.7-6.475V12.6q0-.7.45-1.125.45-.425 1.1-.425.65 0 1.125.425t.475 1.125v20.55q0 5.1-3.65 8.675Q28.15 45.4 23 45.4Z"/>
+        </svg>
+      </label>
+    </button>
+    <input type="file" class="file" id="file" accept="image/*" @change="formFile">
     <textarea placeholder="Write something here, hit Enter to send" v-model="userMessage" @keydown="listenKey" autofocus
               :disabled="textareaDisabled"></textarea>
   </div>
@@ -20,11 +32,24 @@
       <button style="margin-top: 5px" @click="quitChat">👋 Quit Chat</button>
     </div>
   </div>
+  <div class="file-upload" v-show="imagePreview">
+    <div class="title">
+      Please confirm
+    </div>
+    <div class="img">
+      <img :src="imagePreviewSrc" alt="">
+      <div class="name">{{ imagePreviewName }}</div>
+    </div>
+    <div class="buttons">
+      <button @click="sendFile">Send</button>
+      <button class="info" @click="removeFile">Cancel</button>
+    </div>
+  </div>
 </template>
 
 <script>
 import {v4 as uuidv4} from 'uuid'
-import {checkMeOnline, checkOnline, getHash, updateRoom, generateKey, encrypt, decrypt, importKey} from '../js/utils.js'
+import {checkMeOnline, checkOnline, getHash, updateRoom, generateKey, encrypt, decrypt, importKey, splitAsChunk, reformChunkAsString} from '../js/utils.js'
 
 export default {
   name: 'chatPage',
@@ -32,7 +57,7 @@ export default {
   mounted() {
     let _ = this
     _.setKey()
-    
+    window.addEventListener('paste', _.listenPaste)
     setInterval(_.setFixHeight, 20)
     _.checkMeOnline(_.getHash(), function (err, res) {
       if (res.data.online && localStorage.getItem('hash') !== _.getHash()) {
@@ -67,11 +92,118 @@ export default {
     encrypt,
     decrypt,
     importKey,
-    setFixHeight () {
+    listenPaste(e) {
+      let _ = this
+      let fakeEvent = {
+        target: {
+          files: []
+        }
+      }
+      if (!e.clipboardData.files.length) {
+        return
+      }
+      let file = e.clipboardData.files[0]
+      if (!_.validFileSize(file)) {
+        return
+      }
+      if (file.type.startsWith('image/')) {
+        fakeEvent.target.files[0] = file
+        _.formFile(fakeEvent)
+      }
+    },
+    validFileSize(file) {
+      if (file.size > 0.5 * 1024 * 1024) {
+        alert('🤯 This file is way too big for end-to-end encryption, try transcode it under 500Kb. In this situation we recommend you use a file sharing service.')
+        this.removeFile()
+        return false
+      }
+      
+      return true
+    },
+    sendFile() {
+      let _ = this
+      splitAsChunk(_.imagePreviewSrc, function (err, chunks) {
+        let chunkID = uuidv4()
+        let newChunkArr = []
+        if(!chunks){
+          console.log(err)
+          return
+        }
+        let chunkTotal = 0
+        chunks.forEach((el, index) => {
+          let t = {}
+          t.sequence = index
+          t.content = el
+          chunkTotal++
+    
+          newChunkArr.push(t)
+        })
+        let m = {
+          content: {
+            id: chunkID,
+            total: chunkTotal,
+            data: newChunkArr
+          },
+          old_message: _.imagePreviewSrc,
+          type: 'out',
+          isImage: true,
+          status: 0,
+          hash: uuidv4(),
+          timestamp: Date.now()
+        }
+        _.removeFile()
+        _.sendMessage(m)
+      })
+    },
+    removeFile() {
+      document.getElementById('file').value = ''
+      this.imagePreviewSrc = ''
+      this.imagePreview = false
+      this.imagePreviewName = ''
+    },
+    formFile(e) {
+      let _ = this
+      let file = e.target.files[0]
+      if (!file) {
+        return
+      }
+      if (!_.validFileSize(file)) {
+        return
+      }
+      _.fileToBase64(file, (err, res) => {
+        if (err) {
+          console.log(err)
+          return
+        }
+        _.imagePreviewName = file.name
+        _.imagePreviewSrc = res
+        _.imagePreview = true
+      })
+    },
+    fileToBase64(file, cb) {
+      let reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = function () {
+        cb && cb(null, reader.result)
+      }
+      reader.onerror = function (err) {
+        cb && cb(err)
+      }
+    },
+    setFixHeight() {
       let _ = this
       let chatHeight = _.$refs.chat_field.clientHeight
       let windowHeight = document.querySelector('.app-wrap.hasTextField').clientHeight
       _.fixHeight = windowHeight - chatHeight - 30
+    },
+    viewImage(src) {
+      let downloadLink = document.createElement('a')
+      document.body.appendChild(downloadLink)
+      downloadLink.classList.add('hiddenLinks')
+      downloadLink.href = src
+      downloadLink.target = '_blank'
+      downloadLink.download = uuidv4()
+      downloadLink.click()
     },
     setKey() {
       let _ = this
@@ -81,9 +213,9 @@ export default {
         _.initWS()
       })
     },
-    quitChat(){
+    quitChat() {
       let c = confirm('Are you sure?')
-      if(c){
+      if (c) {
         location.href = location.href.split('#')[0]
       }
     },
@@ -100,18 +232,27 @@ export default {
     sendMessage: function (data) {
       let _ = this
       if (_.ws.readyState === 1) {
-        let old_message = data.content
+        let old_message = data.old_message
+        delete data.old_message
         
-        if(localStorage.getItem('theirKey')){
-          _.importKey('public' ,JSON.parse(localStorage.getItem('theirKey')), function (pubKey) {
-            _.encrypt(pubKey, data.content, function (res) {
-              data.content = res
-              _.ws.send(JSON.stringify(data))
-              data.content = old_message
+        if (localStorage.getItem('theirKey')) {
+          _.importKey('public', JSON.parse(localStorage.getItem('theirKey')), function (pubKey) {
+            data.content.data.forEach((el, index) => {
+              _.encrypt(pubKey, el.content, function (res) {
+                el.content = res
+                data.content.data[index] = el
+                
+                if((index + 1) === data.content.data.length){
+                  _.ws.send(JSON.stringify(data))
+  
+                  data.content = old_message
+                  _.userMessage = ''
+                  _.messageList.push(data)
+                }
+              })
             })
           })
-          
-        }else{
+        } else {
           _.messageList.push({
             type: 'system',
             content: 'This message is not sent, cause your friend haven\'t sent their pubKey to you'
@@ -226,12 +367,22 @@ export default {
           
           if (data.type === 'out') {
             _.importKey('private', JSON.parse(localStorage.getItem('myPriKey')), function (priKey) {
-              _.decrypt(priKey, data.content, function (res) {
-                data.content = res
-                data.type = 'in'
-                _.messageList.push(data)
-                _.scrollFunc()
+              let chunks = []
+              data.content.data.forEach((el, index) => {
+                _.decrypt(priKey, el.content, function (res) {
+                  chunks.push(res)
+                  data.type = 'in'
+                  if(index + 1 === data.content.data.length){
+                    reformChunkAsString(chunks, function (err, res) {
+                      data.content = res
+                      _.messageList.push(data)
+                      _.scrollFunc()
+                    })
+                  }
+                })
               })
+              
+              
             })
           }
         })
@@ -249,18 +400,40 @@ export default {
         return false
       }
       e.preventDefault()
+      
       if (_.userMessage) {
-        let m = {
-          content: _.userMessage,
-          type: 'out',
-          status: 0,
-          hash: uuidv4(),
-          timestamp: Date.now()
-        }
-        _.messageList.push(m)
-        _.userMessage = ''
-        _.scrollFunc()
-        _.sendMessage(m)
+        splitAsChunk(_.userMessage, function (err, chunks) {
+          let chunkID = uuidv4()
+          let newChunkArr = []
+          if(!chunks){
+            console.log(err)
+            return
+          }
+          let chunkTotal = 0
+          chunks.forEach((el, index) => {
+            let t = {}
+            t.sequence = index
+            t.content = el
+            chunkTotal++
+  
+            newChunkArr.push(t)
+          })
+  
+          let m = {
+            content: {
+              id: chunkID,
+              total: chunkTotal,
+              data: newChunkArr
+            },
+            old_message: _.userMessage,
+            type: 'out',
+            status: 0,
+            hash: uuidv4(),
+            timestamp: Date.now()
+          }
+          _.scrollFunc()
+          _.sendMessage(m)
+        })
       }
     }
   },
@@ -274,7 +447,10 @@ export default {
       their_key: '',
       clientID: '',
       fixHeight: 0,
-      friendOnline: false
+      friendOnline: false,
+      imagePreview: false,
+      imagePreviewSrc: '',
+      imagePreviewName: ''
     }
   },
   watch: {
