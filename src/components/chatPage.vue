@@ -392,10 +392,13 @@ export default {
               type: 'system',
               content: 'New Public Key Received'
             })
+            _.scrollFunc()
           }
           
           if (data.ONLINE !== undefined){
             _.checkFriendOnline()
+            setTimeout(_.checkFriendOnline, 3000)
+            setTimeout(_.checkFriendOnline, 10000)
           }
           
           if (data.type === 'out') {
