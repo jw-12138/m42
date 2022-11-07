@@ -77,7 +77,6 @@ export default {
   computed: {},
   mounted() {
     let _ = this
-    _.setKey()
     window.addEventListener('paste', _.listenPaste)
     setInterval(_.setFixHeight, 20)
     _.checkMeOnline(_.getHash(), function (err, res) {
@@ -103,6 +102,8 @@ export default {
         
         return false
       }
+  
+      _.setKey()
     })
   },
   methods: {
