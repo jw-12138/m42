@@ -248,6 +248,7 @@ export default {
                   data.content = old_message
                   _.userMessage = ''
                   _.messageList.push(data)
+                  _.scrollFunc()
                 }
               })
             })
