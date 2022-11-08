@@ -19,9 +19,22 @@ router.get('/', (req, res) => {
   
   createRoom(room_path, room)
   addRoomConfig(room)
+  countRoom()
   
   sendJSON(res, room)
 })
+
+function countRoom(){
+  let count = __dirname + '/r/count.json'
+  if(!fs.existsSync(count)){
+    fs.writeFileSync(count, '{"count": 0}')
+  }
+
+  let countData = JSON.parse(fs.readFileSync(count))
+  countData.count++
+  
+  fs.writeFileSync(count, JSON.stringify(countData))
+}
 
 function addRoomConfig(room){
   let roomFile = __dirname + '/r/room.json'

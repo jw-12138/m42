@@ -3,9 +3,9 @@ require('dotenv').config()
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const {WebSocketServer} = require('ws')
+const { WebSocketServer } = require('ws')
 const bodyParser = require('body-parser')
-const {getThatClient, checkRoomActivity, updateData, getRoom, deleteClientData} = require('./utils.js')
+const { getThatClient, checkRoomActivity, updateData, getRoom, deleteClientData } = require('./utils.js')
 
 app.use(cors())
 app.use(express.static('dist'))
@@ -20,7 +20,7 @@ const host = process.env.HOST
 
 if (!port || !host) {
   console.error('port or host is not defined')
-  
+
   process.exit(1)
 }
 
@@ -44,43 +44,66 @@ let lookup = {}
 
 wss.on('connection', function connection(ws, req, client) {
   lookup[client] = ws
-  
-  lookup[client].send(JSON.stringify({
-    clientID: client
-  }))
-  
-  setTimeout(function () {
+
+  lookup[client].send(
+    JSON.stringify({
+      clientID: client
+    })
+  )
+
+  let st = 0
+  let s = setInterval(function () {
+    lookup[client].ping()
+    st = setTimeout(function () {
+      let cThat = getThatClient(client)
+      if (cThat && lookup[cThat]) {
+        lookup[cThat].send(
+          JSON.stringify({
+            ONLINE: false
+          })
+        )
+      }
+    }, 5000)
+  }, 5000)
+
+  lookup[client].on('pong', function () {
     let cThat = getThatClient(client)
+    clearTimeout(st)
     if (cThat && lookup[cThat]) {
-      lookup[cThat].send(JSON.stringify({
-        ONLINE: true
-      }))
+      lookup[cThat].send(
+        JSON.stringify({
+          ONLINE: true
+        })
+      )
     }
-  }, 500)
-  
+  })
+
   lookup[client].on('message', (data) => {
     let cThat = getThatClient(client)
     if (cThat && lookup[cThat]) {
       lookup[cThat].send(data.toString())
     }
-    
+
     updateData(client, {
       lastActivity: Date.now()
     })
   })
-  
+
   lookup[client].on('close', function (code, reason) {
+    clearInterval(s)
     let cThat = getThatClient(client)
     if (cThat && lookup[cThat]) {
-      lookup[cThat].send(JSON.stringify({
-        ONLINE: false
-      }))
+      lookup[cThat].send(
+        JSON.stringify({
+          ONLINE: false
+        })
+      )
     }
-    
+
     let room = getRoom(client)
     deleteClientData(room, client)
     delete lookup[client]
-  
+
     console.log(client, code)
   })
 })
@@ -96,7 +119,7 @@ server.on('upgrade', function upgrade(request, socket, head) {
       socket.destroy()
       return
     }
-    
+
     wss.handleUpgrade(request, socket, head, function done(ws) {
       wss.emit('connection', ws, request, client)
     })
