@@ -157,6 +157,7 @@ input {
         padding: 5px;
         border-radius: 12px;
         text-align: center;
+        line-height: 1;
         
         svg {
           display: inline-block;
@@ -174,6 +175,10 @@ input {
           fill: #ffffff;
         }
       }
+      
+      &.media{
+        padding: 10px;
+      }
     }
     
     img {
@@ -181,6 +186,20 @@ input {
       border-radius: 6px;
       min-height: 30px;
       min-width: 60px;
+    }
+    
+    video{
+      max-width: 100%;
+      border-radius: 6px;
+      min-height: 30px;
+      min-width: 60px;
+      display: block;
+      margin-top: 10px;
+    }
+    
+    audio{
+      margin-top: 10px;
+      display: block;
     }
     
     &.system {

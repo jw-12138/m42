@@ -37,8 +37,6 @@ function updateData(id, newData) {
   lodash.assign(room, newData)
   config[roomID] = room
   fs.writeFileSync(path, JSON.stringify(config))
-  
-  console.log(config[roomID])
 }
 
 function sendJSON(res, data) {

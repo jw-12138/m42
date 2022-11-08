@@ -1,8 +1,13 @@
 import axios from 'axios'
 import api from './api.js'
+import cryptoRandomString from 'crypto-random-string'
 
 export function getHash() {
   return location.hash.replace('#/', '')
+}
+
+export function rnd() {
+  return cryptoRandomString({length: 128})
 }
 
 export function checkHash(cb) {
@@ -114,7 +119,7 @@ export function encrypt(key, data, cb) {
     .then(function (encrypted) {
       let u = new Uint8Array(encrypted)
       let a = Array.from(u)
-      cb && cb(a)
+      cb && cb(null, a)
     })
     .catch(function (err) {
       console.error(err)
@@ -132,9 +137,10 @@ export function decrypt(key, data, cb) {
   )
     .then(function (decrypted) {
       let dec = new Uint8Array(decrypted)
-      cb && cb(new TextDecoder().decode(dec))
+      cb && cb(null, new TextDecoder().decode(dec))
     })
     .catch(function (err) {
+      cb(err)
       console.error(err)
     })
 }
@@ -158,12 +164,12 @@ export function importKey(type, key, cb) {
     })
 }
 
-export function splitAsChunk(str, cb) {
+export function splitAsChunk(size, str, cb) {
   str = encodeURI(str)
   let blob = new Blob([str], {
     type: 'text/plain'
   })
-  let splitSize = 150
+  let splitSize = size || 150
   let chunkArr = []
   let loopTimes = Math.ceil(blob.size / splitSize)
   for (let i = 0; i < loopTimes; i++) {
