@@ -2,7 +2,7 @@
 
 **m42** (message for two) is an Instant Messaging App.
 
-![m42](./example.png)
+![m42](./example.jpg)
 
 _currently in development._
 
