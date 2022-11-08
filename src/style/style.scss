@@ -263,6 +263,7 @@ input {
   height: 100vh;
   background: rgba(#000, .7);
   backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
   top: 0;
   left: 0;
   

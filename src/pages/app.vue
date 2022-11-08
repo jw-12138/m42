@@ -24,13 +24,17 @@ export default {
   mounted() {
     let _ = this
     
-    if(!window.crypto){
-      alert('your browser does not support native encrypt functions, so bye!')
+    if (!window.crypto || !window.crypto.subtle) {
+      if (location.protocol === 'http:') {
+        alert('window.crypto can only be used in https protocol!')
+      } else {
+        alert('your browser does not support native encrypt functions, so bye!')
+      }
       window.close()
       return
     }
-  
-    if(!window.TextEncoder){
+    
+    if (!window.TextEncoder) {
       alert('your browser does not support native text encode functions, so bye!')
       window.close()
       return

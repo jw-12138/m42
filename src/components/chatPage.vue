@@ -10,9 +10,9 @@
             img: item.fileType.startsWith('image/')
           }"><img :src="item.content" @click="viewFile(item.content, item.name)" alt=""/></span>
         
-        <span v-if="item.fileType && !item.fileType.startsWith('image/') && !item.fileType.startsWith('video/') && !item.fileType.startsWith('audio/')" @click="viewFile(item.content, item.name)"
+        <span v-if="item.fileType && !item.fileType.startsWith('image/') && item.fileType !== 'video/mp4' && !item.fileType.startsWith('audio/')" @click="viewFile(item.content, item.name)"
               :class="{
-            file: item.fileType && !item.fileType.startsWith('image/') && !item.fileType.startsWith('video/') && !item.fileType.startsWith('audio/')
+            file: item.fileType && !item.fileType.startsWith('image/') && item.fileType !== 'video/mp4' && !item.fileType.startsWith('audio/')
           }">
           <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48">
             <path
@@ -60,7 +60,7 @@
   <div class="file-upload" v-show="imagePreview || waitingForFile">
     <div class="title">Please confirm</div>
     <div class="img">
-      <img :src="imagePreviewSrc" alt=""/>
+      <img v-show="fileTypePreview.startsWith('image/')" :src="imagePreviewSrc" alt=""/>
       <div class="name">{{ imagePreviewName }}</div>
       <div class="process" v-show="waitingForFile">
         Separating as chunks: {{ (fileSeparateProgress * 100).toFixed(2) }}%
@@ -100,6 +100,10 @@ export default {
     window.addEventListener('paste', _.listenPaste)
     setInterval(_.setFixHeight, 20)
     _.checkMeOnline(_.getHash(), function (err, res) {
+      if(err){
+        console.log(err)
+        return
+      }
       if (res.data.online && localStorage.getItem('hash') !== _.getHash()) {
         let m = {
           content: 'you have already logged in somewhere',
@@ -208,6 +212,7 @@ export default {
       if (!_.validFileSize(file)) {
         return
       }
+      console.log(file.type)
       _.fileToBase64(file, (err, res) => {
         if (err) {
           console.log(err)
@@ -538,6 +543,7 @@ export default {
       imagePreview: false,
       imagePreviewSrc: '',
       imagePreviewName: '',
+      fileTypePreview: '',
       waitingForFile: false,
       fileSeparateProgress: 0
     }
