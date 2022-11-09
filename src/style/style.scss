@@ -91,11 +91,14 @@ input {
   align-items: center;
   
   .attach-file {
+    cursor: pointer;
     width: 36px;
     height: 36px;
     border-radius: 36px;
     font-size: 12px;
     padding: 0;
+    flex-shrink: 0;
+    margin-right: 10px;
     
     label {
       width: 36px;
@@ -104,11 +107,29 @@ input {
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 7px;
     }
     
-    svg {
-      transform: scale(.4) translateX(-5px);
-      fill: #ffffff;
+    img {
+      transform: translateX(-1px);
+    }
+  }
+  
+  .send-message {
+    width: 36px;
+    height: 36px;
+    border-radius: 36px;
+    font-size: 12px;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-left: 10px;
+    cursor: pointer;
+    
+    img {
+      transform: translateX(2px);
     }
   }
   
@@ -176,7 +197,7 @@ input {
         }
       }
       
-      &.media{
+      &.media {
         padding: 10px;
       }
     }
@@ -188,7 +209,7 @@ input {
       min-width: 60px;
     }
     
-    video{
+    video {
       max-width: 100%;
       border-radius: 6px;
       min-height: 30px;
@@ -197,7 +218,7 @@ input {
       margin-top: 10px;
     }
     
-    audio{
+    audio {
       margin-top: 10px;
       display: block;
     }

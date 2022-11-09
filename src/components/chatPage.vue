@@ -10,8 +10,9 @@
             img: item.fileType.startsWith('image/')
           }"><img :src="item.content" @click="viewFile(item.content, item.name)" alt=""/></span>
         
-        <span v-if="item.fileType && !item.fileType.startsWith('image/') && item.fileType !== 'video/mp4' && !item.fileType.startsWith('audio/')" @click="viewFile(item.content, item.name)"
-              :class="{
+        <span
+          v-if="item.fileType && !item.fileType.startsWith('image/') && item.fileType !== 'video/mp4' && !item.fileType.startsWith('audio/')"
+          @click="viewFile(item.content, item.name)" :class="{
             file: item.fileType && !item.fileType.startsWith('image/') && item.fileType !== 'video/mp4' && !item.fileType.startsWith('audio/')
           }">
           <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48">
@@ -22,14 +23,16 @@
         <span v-if="item.fileType && item.fileType === 'video/mp4'" :class="{
           media: item.fileType && item.fileType === 'video/mp4'
         }">
-          {{item.name}}
+          {{ item.name }}
           <br>
           <video :src="item.content" controls></video>
         </span>
-        <span v-if="item.fileType && (item.fileType === 'audio/mpeg' || item.fileType === 'audio/wav' || item.fileType === 'audio/ogg')" :class="{
+        <span
+          v-if="item.fileType && (item.fileType === 'audio/mpeg' || item.fileType === 'audio/wav' || item.fileType === 'audio/ogg')"
+          :class="{
           media: item.fileType && (item.fileType === 'audio/mpeg' || item.fileType === 'audio/wav' || item.fileType === 'audio/ogg')
         }">
-          {{item.name}}
+          {{ item.name }}
           <br>
           <audio :src="item.content" controls></audio>
         </span>
@@ -39,15 +42,16 @@
   <div class="text-field">
     <button class="attach-file">
       <label for="file">
-        <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48">
-          <path
-            d="M23 45.4q-5.15 0-8.775-3.55T10.6 33.2V11.15q0-3.7 2.575-6.3 2.575-2.6 6.275-2.6 3.75 0 6.325 2.6t2.575 6.35v19.95q0 2.25-1.55 3.825-1.55 1.575-3.8 1.575-2.3 0-3.825-1.65-1.525-1.65-1.525-4V12.6q0-.7.45-1.125.45-.425 1.1-.425.65 0 1.125.425T20.8 12.6v18.45q0 1 .65 1.7t1.55.7q.95 0 1.575-.675t.625-1.625v-20q0-2.4-1.675-4.05T19.45 5.45q-2.4 0-4.075 1.65Q13.7 8.75 13.7 11.15V33.3q0 3.8 2.725 6.4Q19.15 42.3 23 42.3q3.9 0 6.6-2.625 2.7-2.625 2.7-6.475V12.6q0-.7.45-1.125.45-.425 1.1-.425.65 0 1.125.425t.475 1.125v20.55q0 5.1-3.65 8.675Q28.15 45.4 23 45.4Z"/>
-        </svg>
+        <img src="../img/attach.svg" alt="">
       </label>
     </button>
     <input type="file" class="file" id="file" @change="formFile"/>
     <textarea placeholder="Write something here, hit Enter to send" v-model="userMessage" autofocus
-              :disabled="textareaDisabled" @compositionstart="userIsComposting = true" @compositionend="userIsComposting = false"></textarea>
+              :disabled="textareaDisabled" @compositionstart="userIsComposting = true"
+              @compositionend="userIsComposting = false"></textarea>
+    <button class="send-message" @click="formMessage">
+      <img src="../img/send.svg" alt="">
+    </button>
   </div>
   <div class="status-bar">
     <div class="wrap">
@@ -101,7 +105,7 @@ export default {
     window.addEventListener('paste', _.listenPaste)
     setInterval(_.setFixHeight, 20)
     _.checkMeOnline(_.getHash(), function (err, res) {
-      if(err){
+      if (err) {
         console.log(err)
         return
       }
@@ -476,59 +480,63 @@ export default {
         })
       )
     },
+    formMessage() {
+      let _ = this
+      splitAsChunk(150, _.userMessage, function (err, chunks, percent) {
+        let chunkID = uuidv4()
+        let newChunkArr = []
+        if (err) {
+          console.log(err)
+          return
+        }
+        if (!chunks) {
+          _.fileSeparateProgress = percent
+          return
+        }
+        let chunkTotal = 0
+        chunks.forEach((el, index) => {
+          let t = {}
+          t.sequence = index
+          t.content = el
+          chunkTotal++
+          
+          newChunkArr.push(t)
+        })
+        
+        let m = {
+          content: {
+            id: chunkID,
+            total: chunkTotal,
+            data: newChunkArr
+          },
+          old_message: _.userMessage,
+          type: 'out',
+          status: 0,
+          hash: uuidv4(),
+          timestamp: Date.now()
+        }
+        _.scrollFunc()
+        _.sendMessage(m)
+      })
+    },
     listenKey(e) {
       let _ = this
       if (e.key !== 'Enter') {
         return false
       }
-      if (_.userIsComposting){
+      if (_.userIsComposting) {
         return false
       }
       
       e.preventDefault()
       
-      if(_.imagePreview){
+      if (_.imagePreview) {
         _.sendFile()
         return
       }
       
       if (_.userMessage) {
-        splitAsChunk(150, _.userMessage, function (err, chunks, percent) {
-          let chunkID = uuidv4()
-          let newChunkArr = []
-          if (err) {
-            console.log(err)
-            return
-          }
-          if (!chunks) {
-            _.fileSeparateProgress = percent
-            return
-          }
-          let chunkTotal = 0
-          chunks.forEach((el, index) => {
-            let t = {}
-            t.sequence = index
-            t.content = el
-            chunkTotal++
-            
-            newChunkArr.push(t)
-          })
-          
-          let m = {
-            content: {
-              id: chunkID,
-              total: chunkTotal,
-              data: newChunkArr
-            },
-            old_message: _.userMessage,
-            type: 'out',
-            status: 0,
-            hash: uuidv4(),
-            timestamp: Date.now()
-          }
-          _.scrollFunc()
-          _.sendMessage(m)
-        })
+        _.formMessage()
       }
     }
   },
@@ -549,7 +557,7 @@ export default {
       fileTypePreview: '',
       waitingForFile: false,
       fileSeparateProgress: 0,
-      userIsComposting: false,
+      userIsComposting: false
     }
   },
   watch: {
