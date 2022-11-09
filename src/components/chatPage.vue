@@ -47,7 +47,7 @@
     </button>
     <input type="file" class="file" id="file" @change="formFile"/>
     <textarea placeholder="Write something here, hit Enter to send" v-model="userMessage" autofocus
-              :disabled="textareaDisabled"></textarea>
+              :disabled="textareaDisabled" @compositionstart="userIsComposting = true" @compositionend="userIsComposting = false"></textarea>
   </div>
   <div class="status-bar">
     <div class="wrap">
@@ -79,14 +79,15 @@ import CryptoJS from 'crypto-js'
 import {
   checkMeOnline,
   checkOnline,
-  getHash,
-  updateRoom,
-  generateKey,
-  encrypt,
   decrypt,
+  encrypt,
+  generateKey,
+  getHash,
   importKey,
+  reformChunkAsString,
+  rnd,
   splitAsChunk,
-  reformChunkAsString, rnd
+  updateRoom
 } from '../js/utils.js'
 
 export default {
@@ -148,9 +149,7 @@ export default {
       if (!e.clipboardData.files.length) {
         return
       }
-      let file = e.clipboardData.files[0]
-      
-      fakeEvent.target.files[0] = file
+      fakeEvent.target.files[0] = e.clipboardData.files[0]
       _.formFile(fakeEvent)
     },
     validFileSize(file) {
@@ -482,6 +481,10 @@ export default {
       if (e.key !== 'Enter') {
         return false
       }
+      if (_.userIsComposting){
+        return false
+      }
+      
       e.preventDefault()
       
       if(_.imagePreview){
@@ -545,7 +548,8 @@ export default {
       imagePreviewName: '',
       fileTypePreview: '',
       waitingForFile: false,
-      fileSeparateProgress: 0
+      fileSeparateProgress: 0,
+      userIsComposting: false,
     }
   },
   watch: {
