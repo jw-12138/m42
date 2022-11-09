@@ -48,7 +48,7 @@
     <input type="file" class="file" id="file" @change="formFile"/>
     <textarea placeholder="Write something here, hit Enter to send" v-model="userMessage" autofocus
               :disabled="textareaDisabled" @compositionstart="userIsComposting = true"
-              @compositionend="userIsComposting = false"></textarea>
+              @compositionend="userIsComposting = false" id="textArea"></textarea>
     <button class="send-message" @click="formMessage">
       <img src="../img/send.svg" alt="">
     </button>
@@ -215,7 +215,6 @@ export default {
       if (!_.validFileSize(file)) {
         return
       }
-      console.log(file.type)
       _.fileToBase64(file, (err, res) => {
         if (err) {
           console.log(err)
@@ -482,6 +481,7 @@ export default {
     },
     formMessage() {
       let _ = this
+      document.getElementById('textArea').focus()
       splitAsChunk(150, _.userMessage, function (err, chunks, percent) {
         let chunkID = uuidv4()
         let newChunkArr = []
