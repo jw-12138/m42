@@ -1,15 +1,15 @@
 const express = require('express')
 const router = express.Router()
-const {v4} = require('uuid')
+const nanoid = require('nanoid')
 const fs = require('fs')
 const {sendJSON} = require('./utils.js')
 
 router.get('/', (req, res) => {
   
   let room = {
-    id: v4(),
-    token_a: v4(),
-    token_b: v4(),
+    id: nanoid(),
+    token_a: nanoid(8),
+    token_b: nanoid(8),
     status: 0,
     createdAt: Date.now(),
     lastActivity: Date.now()
@@ -24,21 +24,21 @@ router.get('/', (req, res) => {
   sendJSON(res, room)
 })
 
-function countRoom(){
+function countRoom() {
   let count = __dirname + '/r/count.json'
-  if(!fs.existsSync(count)){
+  if (!fs.existsSync(count)) {
     fs.writeFileSync(count, '{"count": 0}')
   }
-
+  
   let countData = JSON.parse(fs.readFileSync(count))
   countData.count++
   
   fs.writeFileSync(count, JSON.stringify(countData))
 }
 
-function addRoomConfig(room){
+function addRoomConfig(room) {
   let roomFile = __dirname + '/r/room.json'
-  if(!fs.existsSync(roomFile)){
+  if (!fs.existsSync(roomFile)) {
     fs.writeFileSync(roomFile, '{}')
   }
   

@@ -78,7 +78,7 @@
 </template>
 
 <script>
-import {v4 as uuidv4} from 'uuid'
+import { nanoid } from 'nanoid'
 import CryptoJS from 'crypto-js'
 import {
   checkMeOnline,
@@ -190,7 +190,7 @@ export default {
             name: _.imagePreviewName,
             fileType: _.fileTypePreview,
             status: 0,
-            hash: uuidv4(),
+            hash: nanoid(),
             timestamp: Date.now()
           }
           _.removeFile()
@@ -483,7 +483,7 @@ export default {
       let _ = this
       document.getElementById('textArea').focus()
       splitAsChunk(150, _.userMessage, function (err, chunks, percent) {
-        let chunkID = uuidv4()
+        let chunkID = nanoid()
         let newChunkArr = []
         if (err) {
           console.log(err)
@@ -512,7 +512,7 @@ export default {
           old_message: _.userMessage,
           type: 'out',
           status: 0,
-          hash: uuidv4(),
+          hash: nanoid(),
           timestamp: Date.now()
         }
         _.scrollFunc()
