@@ -78,7 +78,7 @@
 </template>
 
 <script>
-import { nanoid } from 'nanoid'
+import nanoid from 'nanoid'
 import CryptoJS from 'crypto-js'
 import {
   checkMeOnline,
