@@ -420,7 +420,7 @@ export default {
             type: 'system',
             content: '⚙️ Reconnecting...'
           })
-          _.reInitWebsocketInterval = setInterval(function () {
+          _.reInitWebsocketInterval = setTimeout(function () {
             _.reInitSignal = true
             _.setKey()
           }, 2000)
