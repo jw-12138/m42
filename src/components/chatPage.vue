@@ -102,6 +102,9 @@ export default {
     window.addEventListener('keydown', function (e) {
       _.listenKey(e)
     })
+    setTimeout(function () {
+      _.checkFriendOnlineBurst = 30 * 1000
+    }, 5000)
     window.addEventListener('paste', _.listenPaste)
     setInterval(_.setFixHeight, 20)
     _.checkMeOnline(_.getHash(), function (err, res) {
@@ -266,9 +269,15 @@ export default {
         location.href = location.href.split('#')[0]
       }
     },
-    checkFriendOnline() {
+    checkFriendOnline(noRecurring) {
       let _ = this
       _.checkOnline(_.getHash(), _.clientID, function (err, res) {
+        setTimeout(function () {
+          if(!noRecurring){
+            _.checkFriendOnline()
+          }
+        }, _.checkFriendOnlineBurst)
+        
         if (err) {
           console.log(err)
           _.friendOnline = false
@@ -279,7 +288,7 @@ export default {
     },
     sendMessage: function (data) {
       let _ = this
-      _.checkFriendOnline()
+      _.checkFriendOnline(1)
       if (_.ws.readyState === 1) {
         let old_message = data.old_message
         delete data.old_message
@@ -350,7 +359,12 @@ export default {
         _.ws = ws
         ws.addEventListener('open', function (e) {
           console.log('Websocket connected!')
+          clearInterval(_.reInitWebsocketInterval)
           if (_.reInitSignal) {
+            _.messageList.push({
+              type: 'system g',
+              content: '✨ Connection Established'
+            })
             return false
           }
           _.checkFriendOnline()
@@ -382,6 +396,10 @@ export default {
             type: 'system',
             content: '--//--'
           })
+  
+          _.ws.send(JSON.stringify({
+            ONLINE: true
+          }))
           
           if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
             _.messageList.push({
@@ -398,8 +416,11 @@ export default {
         ws.addEventListener('close', function () {
           console.log('Websocket closed!')
           _.friendOnline = false
-          
-          setTimeout(function () {
+          _.messageList.push({
+            type: 'system',
+            content: '⚙️ Reconnecting...'
+          })
+          _.reInitWebsocketInterval = setInterval(function () {
             _.reInitSignal = true
             _.setKey()
           }, 5000)
@@ -409,7 +430,6 @@ export default {
           let data = JSON.parse(e.data)
           if (data.clientID) {
             _.clientID = data.clientID
-            _.checkFriendOnline()
             updateRoom(
               _.getHash(),
               {
@@ -426,7 +446,7 @@ export default {
           }
           
           if (data.KEY) {
-            _.checkFriendOnline()
+            _.friendOnline = true
             localStorage.setItem('theirKey', data.KEY)
             _.messageList.push({
               type: 'system',
@@ -436,14 +456,11 @@ export default {
           }
           
           if (data.ONLINE !== undefined) {
-            if (data.ONLINE) {
-              _.friendOnline = true
-            } else {
-              _.friendOnline = false
-            }
+            _.checkFriendOnline(1)
           }
           
           if (data.type === 'out') {
+            _.friendOnline = true
             if (data.password) {
               _.importKey('private', JSON.parse(localStorage.getItem('myPriKey')), function (priKey) {
                 _.decrypt(priKey, data.password, function (err, password) {
@@ -547,6 +564,8 @@ export default {
   },
   data() {
     return {
+      reInitWebsocketInterval: null,
+      checkFriendOnlineBurst: 300,
       reInitSignal: false,
       textareaDisabled: false,
       userMessage: '',
