@@ -423,7 +423,7 @@ export default {
           _.reInitWebsocketInterval = setInterval(function () {
             _.reInitSignal = true
             _.setKey()
-          }, 5000)
+          }, 2000)
         })
         
         ws.addEventListener('message', function (e) {
