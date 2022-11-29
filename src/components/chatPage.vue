@@ -332,7 +332,7 @@ export default {
           .scrollTo(0, document.querySelector('.app-wrap.hasTextField').scrollHeight)
       }, 50)
     },
-    initWS(reInitSignal) {
+    initWS() {
       let ws = null
       let _ = this
       try {
@@ -350,7 +350,7 @@ export default {
         _.ws = ws
         ws.addEventListener('open', function (e) {
           console.log('Websocket connected!')
-          if (reInitSignal) {
+          if (_.reInitSignal) {
             return false
           }
           _.checkFriendOnline()
@@ -400,7 +400,8 @@ export default {
           _.friendOnline = false
           
           setTimeout(function () {
-            _.initWS(1)
+            _.reInitSignal = true
+            _.setKey()
           }, 5000)
         })
         
@@ -546,6 +547,7 @@ export default {
   },
   data() {
     return {
+      reInitSignal: false,
       textareaDisabled: false,
       userMessage: '',
       messageList: [],
