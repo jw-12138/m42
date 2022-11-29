@@ -269,6 +269,11 @@ export default {
     checkFriendOnline() {
       let _ = this
       _.checkOnline(_.getHash(), _.clientID, function (err, res) {
+        if (err) {
+          console.log(err)
+          _.friendOnline = false
+          return
+        }
         _.friendOnline = res.data.online ? res.data.online : false
       })
     },
@@ -327,7 +332,7 @@ export default {
           .scrollTo(0, document.querySelector('.app-wrap.hasTextField').scrollHeight)
       }, 50)
     },
-    initWS() {
+    initWS(reInitSignal) {
       let ws = null
       let _ = this
       try {
@@ -345,6 +350,9 @@ export default {
         _.ws = ws
         ws.addEventListener('open', function (e) {
           console.log('Websocket connected!')
+          if (reInitSignal) {
+            return false
+          }
           _.checkFriendOnline()
           _.messageList.push({
             type: 'system g',
@@ -390,14 +398,10 @@ export default {
         ws.addEventListener('close', function () {
           console.log('Websocket closed!')
           _.friendOnline = false
-          _.messageList.push({
-            type: 'system',
-            content: '😢 Connection Lost'
-          })
-          _.messageList.push({
-            type: 'system',
-            content: 'Please refresh this page when the network is reconnected'
-          })
+          
+          setTimeout(function () {
+            _.initWS(1)
+          }, 5000)
         })
         
         ws.addEventListener('message', function (e) {
