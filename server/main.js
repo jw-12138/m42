@@ -51,33 +51,6 @@ wss.on('connection', function connection(ws, req, client) {
     })
   )
 
-  let st = 0
-  let s = setInterval(function () {
-    lookup[client].ping()
-    st = setTimeout(function () {
-      let cThat = getThatClient(client)
-      if (cThat && lookup[cThat]) {
-        lookup[cThat].send(
-          JSON.stringify({
-            ONLINE: false
-          })
-        )
-      }
-    }, 5000)
-  }, 5000)
-
-  lookup[client].on('pong', function () {
-    let cThat = getThatClient(client)
-    clearTimeout(st)
-    if (cThat && lookup[cThat]) {
-      lookup[cThat].send(
-        JSON.stringify({
-          ONLINE: true
-        })
-      )
-    }
-  })
-
   lookup[client].on('message', (data) => {
     let cThat = getThatClient(client)
     if (cThat && lookup[cThat]) {
@@ -90,7 +63,6 @@ wss.on('connection', function connection(ws, req, client) {
   })
 
   lookup[client].on('close', function (code, reason) {
-    clearInterval(s)
     let cThat = getThatClient(client)
     if (cThat && lookup[cThat]) {
       lookup[cThat].send(
