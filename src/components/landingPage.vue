@@ -14,6 +14,7 @@
     <div>
       <p>M42 (message for two) is an Instant Messaging App, it has the following features:</p>
       <ul>
+        <li>✨ <a href="https://github.com/jw-12138/m42">open source</a> <img src="../img/github-mark-white.png" alt="" style="width: 14px; height: 14px; display: inline-block; position: relative; top: 2px;"></li>
         <li>🔐 end-to-end encryption</li>
         <li>☝️ no group chat, 1-on-1 only</li>
         <li>😎 no chat history stored</li>

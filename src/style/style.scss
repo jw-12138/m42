@@ -17,11 +17,18 @@ body {
   overflow: auto;
   height: 100vh;
   -webkit-overflow-scrolling: touch;
-  
+
   &.hasTextField {
     padding-bottom: 0;
     height: calc(100vh - 144px);
   }
+}
+
+a {
+  color: #fff;
+  text-decoration-line: underline;
+  text-decoration-color: #4338ca;
+  text-decoration-thickness: 20%;
 }
 
 button {
@@ -33,11 +40,11 @@ button {
   padding: 3px 15px;
   cursor: pointer;
   box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  
+
   &:active {
     opacity: 0.8;
   }
-  
+
   &.info {
     background: #374151;
     border: 1px solid #1f2937;
@@ -69,7 +76,7 @@ input {
   font-size: 10px;
   color: #6d7b8d;
   background: #171717;
-  
+
   .wrap {
     width: 100%;
     max-width: 500px;
@@ -89,7 +96,7 @@ input {
   display: flex;
   justify-content: center;
   align-items: center;
-  
+
   .attach-file {
     cursor: pointer;
     width: 36px;
@@ -99,7 +106,7 @@ input {
     padding: 0;
     flex-shrink: 0;
     margin-right: 10px;
-    
+
     label {
       width: 36px;
       height: 36px;
@@ -109,12 +116,12 @@ input {
       justify-content: center;
       padding: 7px;
     }
-    
+
     img {
       transform: translateX(-1px);
     }
   }
-  
+
   .send-message {
     width: 36px;
     height: 36px;
@@ -127,12 +134,12 @@ input {
     flex-shrink: 0;
     margin-left: 10px;
     cursor: pointer;
-    
+
     img {
       transform: translateX(2px);
     }
   }
-  
+
   #file {
     position: fixed;
     left: -9999px;
@@ -140,7 +147,7 @@ input {
     border: none;
     pointer-events: none;
   }
-  
+
   textarea {
     box-sizing: border-box;
     border: none;
@@ -165,7 +172,7 @@ input {
     font-size: 13px;
     margin-bottom: 4px;
     animation: newMessage 0.4s ease;
-    
+
     span {
       display: inline-block;
       padding: 4px 13px;
@@ -173,42 +180,42 @@ input {
       border-radius: 20px;
       max-width: 80%;
       word-break: break-word;
-      
+
       &.img {
         padding: 5px;
         border-radius: 12px;
         text-align: center;
         line-height: 1;
-        
+
         svg {
           display: inline-block;
           fill: #ffffff;
         }
       }
-      
+
       &.file {
         padding: 10px;
         border-radius: 12px;
         text-align: center;
-        
+
         svg {
           display: inline-block;
           fill: #ffffff;
         }
       }
-      
+
       &.media {
         padding: 10px;
       }
     }
-    
+
     img {
       max-width: 100%;
       border-radius: 6px;
       min-height: 30px;
       min-width: 60px;
     }
-    
+
     video {
       max-width: 100%;
       border-radius: 6px;
@@ -217,40 +224,40 @@ input {
       display: block;
       margin-top: 10px;
     }
-    
+
     audio {
       margin-top: 10px;
       display: block;
     }
-    
+
     &.system {
       background-color: transparent;
       font-size: 12px;
-      
+
       &.g {
         span {
           color: greenyellow;
         }
       }
-      
+
       &.i {
         span {
           color: #ffffff;
         }
       }
-      
+
       &.w {
         span {
           color: #c2410c;
         }
       }
-      
+
       &.l {
         span {
           text-align: left;
         }
       }
-      
+
       span {
         display: block;
         background: transparent;
@@ -261,14 +268,14 @@ input {
         color: #cccccc;
       }
     }
-    
+
     &.out {
       text-align: right;
-      
+
       span {
         background: #4338ca;
         text-align: left;
-        
+
         &.file {
           text-align: center;
         }
@@ -287,25 +294,25 @@ input {
   -webkit-backdrop-filter: blur(7px);
   top: 0;
   left: 0;
-  
+
   .title {
     margin-top: 30px;
     text-align: center;
   }
-  
+
   .img {
     width: 100%;
     text-align: center;
     max-width: 100vw;
     max-height: 550px;
     margin: 20px auto;
-    
+
     img {
       display: inline-block;
       max-width: 500px;
       max-height: 400px;
     }
-    
+
     .name {
       margin-top: 10px;
       font-style: italic;
@@ -313,7 +320,7 @@ input {
       line-height: 1.6;
       font-size: 12px;
     }
-    
+
     .process {
       margin-top: 10px;
       text-align: center;
@@ -321,11 +328,11 @@ input {
       font-size: 12px;
     }
   }
-  
+
   .buttons {
     text-align: center;
     padding: 10px 0;
-    
+
     button {
       margin: 0 5px;
     }

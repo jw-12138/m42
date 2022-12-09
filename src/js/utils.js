@@ -108,6 +108,14 @@ export function generateKey(cb) {
   }
 }
 
+/**
+ * Encrypts data using the specified RSA key.
+ * @param {CryptoKey} key - The RSA key to use for encryption.
+ * @param {string} data - The data to be encrypted.
+ * @param {function} cb - A callback function to be called when the encryption has completed. The function should have
+ *                        the signature (err: Error, encrypted: Uint8Array): void, where `encrypted` is the encrypted
+ *                        data as a `Uint8Array`.
+ */
 export function encrypt(key, data, cb) {
   window.crypto.subtle.encrypt(
     {
@@ -126,6 +134,14 @@ export function encrypt(key, data, cb) {
     })
 }
 
+/**
+ * Decrypts data using the specified RSA key.
+ * @param {CryptoKey} key - The RSA key to use for decryption.
+ * @param {Uint8Array} data - The encrypted data to be decrypted.
+ * @param {function} cb - A callback function to be called when the decryption has completed. The function should have
+ *                        the signature (err: Error, decrypted: string): void, where `decrypted` is the decrypted
+ *                        string.
+ */
 export function decrypt(key, data, cb) {
   let u = Uint8Array.from(data)
   window.crypto.subtle.decrypt(
@@ -145,6 +161,13 @@ export function decrypt(key, data, cb) {
     })
 }
 
+/**
+ * Imports an RSA key from a JavaScript object.
+ * @param {string} type - The type of the key to import ('public' or 'private').
+ * @param {Object} key - The JavaScript object representing the key to import.
+ * @param {function} cb - A callback function to be called when the key has been imported. The function should have the
+ *                        signature (key: CryptoKey): void, where `key` is the imported key.
+ */
 export function importKey(type, key, cb) {
   window.crypto.subtle.importKey(
     'jwk',
@@ -164,6 +187,14 @@ export function importKey(type, key, cb) {
     })
 }
 
+/**
+ * Splits a string into smaller chunks of a specified size.
+ * @param {number} size - The size of each chunk, in bytes.
+ * @param {string} str - The string to split into chunks.
+ * @param {function} cb - A callback function to be called when the string has been split into chunks. The function
+ *                        should have the signature (err: Error, chunks: string[]): void, where `chunks` is the
+ *                        array of strings representing the chunks of the original string.
+ */
 export function splitAsChunk(size, str, cb) {
   str = encodeURI(str)
   let blob = new Blob([str], {
@@ -185,6 +216,13 @@ export function splitAsChunk(size, str, cb) {
   }
 }
 
+/**
+ * Reassembles an array of strings into the original string.
+ * @param {string[]} chunks - The array of strings representing the chunks of the original string.
+ * @param {function} cb - A callback function to be called when the chunks have been reassembled into the original
+ *                        string. The function should have the signature (err: Error, str: string): void, where `str`
+ *                        is the reassembled string.
+ */
 export function reformChunkAsString(chunks, cb) {
   let blob = new Blob(chunks, {
     type: 'text/plain'
