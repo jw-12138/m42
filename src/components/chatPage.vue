@@ -56,7 +56,7 @@
   <div class="status-bar">
     <div class="wrap">
       Friend Online:
-      <span :style="{ color: friendOnline ? 'greenyellow' : 'red' }">{{ friendOnline ? 'Y' : 'N' }}</span>
+      <span :class="{ online: friendOnline ? 'online' : 'offline' }">{{ friendOnline ? 'Y' : 'N' }}</span>
       <br/>
       <button style="margin-top: 5px" @click="quitChat">👋 Quit Chat</button>
     </div>

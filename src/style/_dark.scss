@@ -1,0 +1,160 @@
+$theme-color: #4338ca;
+$bg-color: #171717;
+$inverse-color: #ffffff;
+
+@media (prefers-color-scheme: dark) {
+
+  html,
+  body {
+    font-family: "Varela Round", "PingFang SC", "Microsoft Sans Serif", sans-serif;
+    background: $bg-color;
+    color: $inverse-color;
+  }
+
+  a {
+    color: $inverse-color;
+    text-decoration-color: $theme-color;
+  }
+
+  button {
+    background: $theme-color;
+    border: 1px solid darken($theme-color, 10%);
+    color: $inverse-color;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+    &:active {
+      opacity: 0.8;
+    }
+
+    &.info {
+      background: #374151;
+      border: 1px solid #1f2937;
+    }
+  }
+
+  code {
+    border-radius: 3px;
+    background: $bg-color;
+    border: 1px solid #4b5563;
+  }
+
+  input {
+    background: $bg-color;
+    border: 1px solid #4b5563;
+    color: #ffffff;
+  }
+
+  .status-bar {
+    background: $bg-color;
+    color: #707e8f;
+
+    .wrap {
+      .offline {
+        color: red;
+      }
+
+      .online{
+        color: greenyellow;
+      }
+    }
+  }
+
+  .text-field {
+    background: $bg-color;
+
+    .attach-file {
+      label {
+        width: 36px;
+        height: 36px;
+        border-radius: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px;
+      }
+
+      img {
+        transform: translateX(-1px);
+      }
+    }
+
+    textarea {
+      background: darken($bg-color, 50%);
+      color: $inverse-color;
+    }
+  }
+
+  .chat-field {
+    .message-item {
+      span {
+        background: lighten($bg-color, 10%);
+
+        &.img {
+          svg {
+            fill: $inverse-color;
+          }
+        }
+
+        &.file {
+          svg {
+            display: inline-block;
+            fill: $inverse-color;
+          }
+        }
+      }
+
+      &.system {
+        background-color: transparent;
+
+        &.g {
+          span {
+            color: greenyellow;
+          }
+        }
+
+        &.i {
+          span {
+            color: $inverse-color;
+          }
+        }
+
+        &.w {
+          span {
+            color: #c2410c;
+          }
+        }
+
+        span {
+          background: transparent;
+          color: #cccccc;
+        }
+      }
+
+      &.out {
+        span {
+          background: $theme-color;
+        }
+      }
+    }
+  }
+
+  .file-upload {
+    background: fade-out($bg-color, 0.7);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: $bg-color;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: lighten($bg-color, 15%);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: lighten($bg-color, 20%);
+  }
+}
