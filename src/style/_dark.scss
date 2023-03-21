@@ -53,7 +53,7 @@ $inverse-color: #ffffff;
         color: red;
       }
 
-      .online{
+      .online {
         color: greenyellow;
       }
     }
@@ -86,6 +86,14 @@ $inverse-color: #ffffff;
 
   .chat-field {
     .message-item {
+      &.in {
+        span.file {
+          svg {
+            fill: #fff;
+          }
+        }
+      }
+
       span {
         background: lighten($bg-color, 10%);
 

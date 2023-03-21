@@ -4,8 +4,6 @@
 
 ![m42](./example.jpg)
 
-_currently in development._
-
 ## Features
 
 - 🔐 end-to-end encryption

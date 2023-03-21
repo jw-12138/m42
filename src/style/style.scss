@@ -24,7 +24,7 @@ body {
 
   &.hasTextField {
     padding-bottom: 0;
-    height: calc(100vh - 144px);
+    height: calc(100vh - 94px);
   }
 }
 
@@ -81,17 +81,22 @@ input {
   color: #353b44;
   background: $bg-color;
 
+  a{
+    text-decoration: none;
+  }
+
   .wrap {
     width: 100%;
     max-width: 500px;
     text-align: center;
     margin: 0 auto;
     line-height: 26px;
+
     .offline {
       color: red;
     }
 
-    .online{
+    .online {
       color: green;
     }
   }
@@ -116,7 +121,7 @@ input {
     font-size: 12px;
     padding: 0;
     flex-shrink: 0;
-    margin-right: 10px;
+    margin-left: 10px;
 
     label {
       width: 36px;
@@ -184,6 +189,14 @@ input {
     margin-bottom: 4px;
     animation: newMessage 0.4s ease;
 
+    &.in {
+      span.file {
+        svg {
+          fill: #555;
+        }
+      }
+    }
+
     span {
       display: inline-block;
       padding: 4px 13px;
@@ -211,7 +224,7 @@ input {
 
         svg {
           display: inline-block;
-          fill: #ffffff;
+          fill: #fff;
         }
       }
 

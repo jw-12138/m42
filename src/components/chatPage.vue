@@ -40,15 +40,15 @@
     </div>
   </div>
   <div class="text-field">
+    <input type="file" class="file" id="file" @change="formFile"/>
+    <textarea placeholder="Write something here, hit Enter to send" v-model="userMessage" autofocus
+              :disabled="textareaDisabled" @compositionstart="userIsComposting = true"
+              @compositionend="userIsComposting = false" id="textArea"></textarea>
     <button class="attach-file">
       <label for="file">
         <img src="../img/attach.svg" alt="">
       </label>
     </button>
-    <input type="file" class="file" id="file" @change="formFile"/>
-    <textarea placeholder="Write something here, hit Enter to send" v-model="userMessage" autofocus
-              :disabled="textareaDisabled" @compositionstart="userIsComposting = true"
-              @compositionend="userIsComposting = false" id="textArea"></textarea>
     <button class="send-message" @click="formMessage">
       <img src="../img/send.svg" alt="">
     </button>
@@ -60,8 +60,8 @@
         online: friendOnline,
         offline: !friendOnline
       }">{{ friendOnline ? 'Y' : 'N' }}</span>
-      <br/>
-      <button style="margin-top: 5px" @click="quitChat">👋 Quit Chat</button>
+      &emsp;&emsp;
+      <a href="javascript:" role="button" @click="quitChat">👋 Quit Chat</a>
     </div>
   </div>
   <div class="file-upload" v-show="imagePreview || waitingForFile">
