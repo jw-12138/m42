@@ -2,7 +2,9 @@
 
 **m42** (message for two) is an Instant Messaging App.
 
-![m42](./example.jpg)
+> [!IMPORTANT]  
+> A refreshed version of M42 is being developed, this time we are using Cloudflare Workers/Pages as the backend service and front-end hosting, expecting a really fast and flexible deployment experience with multiple new features and better UX, stay tuned!
+
 
 ## Features
 
@@ -26,11 +28,8 @@
 git clone https://github.com/jw-12138/m42.git
 cd m42
 
-# copy `env_temp` to `.env`
-# Linux / macOS
+# rename `env_temp` to `.env`
 cp env_temp .env
-# Windows
-copy env_temp .env
 
 # install dependencies
 npm i
@@ -43,23 +42,3 @@ npm run serve
 ```
 
 now visit `localhost:5009`, enjoy!
-
----
-
-## development
-
-### first stage
-
-- [x] UI
-- [x] send text
-- [x] security
-  - [x] self-destroy when no activity
-  - [x] 1-end session
-  - [x] end-to-end encryption
-
-### second stage
-
-- [x] send images and files
-- [ ] user selectable theme
-- [ ] push notification
-- [ ] notification sound
